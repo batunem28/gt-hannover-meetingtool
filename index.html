@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toplantı Protokoll · GT Hannover</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#545454">
+<style>
+  :root{
+    --green:#3d9c4f;
+    --green-dark:#2f7b3e;
+    --green-soft:#eaf5ec;
+    --ink:#1c2321;
+    --ink-soft:#5a6663;
+    --line:#dfe5e2;
+    --bg:#f4f6f5;
+    --card:#ffffff;
+    --dark:#545454; /* exakt der Grauton aus dem Vereinslogo */
+    --radius:14px;
+    --shadow:0 1px 2px rgba(28,35,33,.06),0 8px 24px rgba(28,35,33,.06);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5;
+  }
+  button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+
+  /* ---------- App-Rahmen ---------- */
+  .brandbar{
+    background:var(--dark);color:#fff;padding:20px 22px 18px;text-align:center;
+    box-shadow:0 2px 12px rgba(0,0,0,.18);
+  }
+  .brandbar img{height:58px;width:auto;max-width:min(92vw,520px);display:block;margin:0 auto}
+  .brandbar .fallback{
+    display:inline-block;font-weight:700;letter-spacing:.16em;font-size:15px;text-transform:uppercase;
+    line-height:1.6;border-left:3px solid var(--green);padding-left:14px;text-align:left;
+  }
+  .brandbar .fallback b{display:block;font-size:19px;letter-spacing:.12em}
+  .brandbar .sub{
+    margin-top:12px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;opacity:.65;
+  }
+  .brandbar .accent{height:4px;background:var(--green);margin:16px -22px -18px}
+
+  .layout{
+    display:grid;grid-template-columns:minmax(380px,1fr) minmax(520px,1.15fr);
+    gap:22px;padding:22px;align-items:start;max-width:1680px;margin:0 auto;
+  }
+  @media (max-width:1150px){ .layout{grid-template-columns:1fr} }
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden;
+  }
+  .card > h2{
+    margin:0;padding:13px 18px;font-size:13px;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--ink-soft);background:#fafbfa;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;
+  }
+  .card > h2 .num{
+    background:var(--green);color:#fff;width:20px;height:20px;border-radius:50%;
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:0;
+  }
+  .card .body{padding:16px 18px}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media (max-width:620px){.grid2,.grid3{grid-template-columns:1fr}}
+  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px}
+  input[type=text],input[type=date],input[type=time],textarea,select{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  input:focus,textarea:focus,select:focus{
+    outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(61,156,79,.15);
+  }
+  textarea{resize:vertical;line-height:1.6}
+  .field{margin-bottom:12px}
+  .field:last-child{margin-bottom:0}
+
+  #notes{
+    min-height:340px;font-family:"Cascadia Mono",Consolas,"SF Mono",monospace;font-size:13.5px;line-height:1.75;
+  }
+
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:9px 15px;border-radius:9px;border:1px solid var(--line);background:#fff;
+    cursor:pointer;font-weight:600;font-size:13.5px;transition:.15s;
+  }
+  .btn:hover{background:#f4f6f5;border-color:#c8d2ce}
+  .btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+  .btn.primary:hover{background:var(--green-dark);border-color:var(--green-dark)}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--ink-soft)}
+  .btn.ghost:hover{background:#eef1f0}
+  .btnrow{display:flex;flex-wrap:wrap;gap:9px}
+
+  .legend{background:var(--green-soft);border-radius:10px;padding:12px 14px;font-size:13px;margin-top:12px}
+  .legend table{width:100%;border-collapse:collapse}
+  .legend td{padding:3px 0;vertical-align:top}
+  .legend code{
+    background:#fff;border:1px solid #cfe3d4;border-radius:5px;padding:1px 6px;
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;white-space:nowrap;
+  }
+  .legend td:last-child{color:var(--ink-soft);padding-left:12px}
+
+  .checkrow{display:flex;align-items:center;gap:9px;margin-bottom:9px;font-size:13.5px}
+  .checkrow input{width:17px;height:17px;accent-color:var(--green);margin:0}
+  .checkrow label{margin:0;font-weight:500;color:var(--ink);font-size:13.5px}
+
+  /* Personenauswahl */
+  .pickerrow{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:10px}
+  .pickerrow label{margin:0;font-size:12px;font-weight:600;color:var(--ink-soft)}
+  .pickerrow select{width:auto;min-width:190px;padding:7px 10px;font-size:13.5px}
+  .pk-hint{font-size:12px;color:var(--ink-soft)}
+  .pk-hint code{
+    background:var(--green-soft);border:1px solid #cfe3d4;border-radius:4px;padding:0 5px;
+    font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;
+  }
+
+  /* @-Vorschlagsliste im Notizfeld */
+  .mention-pop{
+    position:absolute;z-index:60;background:#fff;border:1px solid var(--line);border-radius:10px;
+    box-shadow:0 10px 28px rgba(28,35,33,.16);min-width:230px;max-width:320px;
+    max-height:232px;overflow:auto;padding:4px;display:none;
+  }
+  .mention-pop.show{display:block}
+  .mention-pop .mi{
+    padding:6px 10px;border-radius:7px;cursor:pointer;line-height:1.35;
+  }
+  .mention-pop .mi.sel,.mention-pop .mi:hover{background:var(--green-soft)}
+  .mention-pop .mi b{display:block;font-size:13.5px;font-weight:600}
+  .mention-pop .mi span{font-size:11.5px;color:var(--ink-soft)}
+  .mention-pop .mi em{font-style:normal;background:#d7ecdc;border-radius:3px}
+  .mention-pop .empty{padding:8px 10px;font-size:13px;color:var(--ink-soft);font-style:italic}
+
+  /* Teams */
+  .btn.teams{background:#4b53bc;border-color:#4b53bc;color:#fff}
+  .btn.teams:hover{background:#3d44a3;border-color:#3d44a3}
+  .member-row{display:flex;gap:8px;margin-bottom:7px;align-items:center}
+  .member-row input{flex:1;min-width:0;padding:7px 9px;font-size:13.5px}
+  .member-row .del{
+    border:1px solid var(--line);background:#fff;border-radius:7px;width:30px;height:32px;
+    cursor:pointer;color:var(--ink-soft);flex:none;line-height:1;
+  }
+  .member-row .del:hover{background:#fdecec;border-color:#f0b4b4;color:#b53434}
+  .note{border-radius:9px;padding:10px 12px;font-size:12.8px;line-height:1.5}
+  .note.warn{background:#fdf5e3;border:1px solid #efd6a4;color:#7d5711}
+  .note.ok{background:var(--green-soft);border:1px solid #bfe0c8;color:#26662f}
+  .note.info{background:#eef1f5;border:1px solid #d5dde6;color:#41505f}
+  .note b{font-weight:700}
+
+  .archive-item{
+    display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px;
+  }
+  .archive-item:last-child{border-bottom:none}
+  .archive-item .t{flex:1;min-width:0}
+  .archive-item .t strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .archive-item .t span{font-size:12px;color:var(--ink-soft)}
+  .mini{padding:5px 10px;font-size:12.5px;border-radius:7px}
+  .empty{color:var(--ink-soft);font-size:13px;font-style:italic}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;padding:11px 20px;border-radius:10px;font-size:14px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:100;box-shadow:0 8px 30px rgba(0,0,0,.25);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ---------- Vorschau-Spalte ---------- */
+  .preview-col{position:sticky;top:80px}
+  .paper-wrap{
+    background:#e8ebea;border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px;max-height:calc(100vh - 190px);overflow:auto;box-shadow:var(--shadow) inset;
+  }
+
+  /* ---------- Das Dokument ---------- */
+  .paper{
+    background:#fff;width:100%;max-width:820px;margin:0 auto;padding:0 0 34px;
+    box-shadow:0 4px 24px rgba(0,0,0,.12);color:#111;
+    font-family:"Segoe UI",system-ui,Arial,sans-serif;font-size:11.4pt;line-height:1.55;
+  }
+  .doc-head{padding:22px 34px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .doc-head.dark{background:var(--dark);color:#fff}
+  .doc-head.green{background:var(--green);color:#fff}
+  .doc-head.light{background:#fff;color:var(--ink);border-bottom:1px solid var(--line)}
+  .doc-head img{max-height:58px;max-width:330px;display:block}
+  .doc-head .fallback{font-size:13px;letter-spacing:.15em;text-transform:uppercase;line-height:1.7;
+    border-left:3px solid var(--green);padding-left:12px}
+  .doc-head .fallback b{display:block;font-size:16px;letter-spacing:.1em}
+  .doc-head .meta{text-align:right;font-size:10.5px;line-height:1.6;opacity:.9}
+  .accentbar{height:5px;background:var(--green)}
+
+  .doc-body{padding:26px 34px 0}
+  .doc-title{margin:0 0 4px;font-size:20pt;font-weight:700;letter-spacing:-.4px}
+  .doc-sub{margin:0 0 20px;color:#667;font-size:10.5pt}
+
+  .factbox{
+    display:grid;grid-template-columns:1fr 1fr;gap:0 26px;
+    border:1px solid var(--line);border-left:4px solid var(--green);border-radius:8px;
+    padding:14px 18px;margin-bottom:24px;font-size:10.5pt;background:#fcfdfc;
+  }
+  .factbox div{display:flex;gap:8px;padding:3px 0;border-bottom:1px dotted #e6eae8}
+  .factbox div:nth-last-child(-n+2){border-bottom:none}
+  .factbox b{min-width:112px;color:#667;font-weight:600}
+  @media print{ .factbox{background:#fcfdfc !important;-webkit-print-color-adjust:exact} }
+
+  .sec-title{
+    font-size:12.5pt;font-weight:700;margin:26px 0 10px;padding-bottom:6px;
+    border-bottom:2px solid var(--green);display:flex;align-items:baseline;gap:9px;
+  }
+  .sec-title .badge{
+    background:var(--green);color:#fff;border-radius:5px;padding:1px 8px;font-size:9.5pt;font-weight:700;
+  }
+
+  .top-block{margin:0 0 18px;page-break-inside:avoid}
+  .top-head{
+    font-size:11.5pt;font-weight:700;margin:0 0 7px;padding:6px 10px;background:var(--green-soft);
+    border-radius:6px;border-left:3px solid var(--green);
+  }
+  .top-block ul{margin:0 0 8px;padding-left:20px}
+  .top-block li{margin:3px 0}
+  .tag{
+    display:inline-block;font-size:8.5pt;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    padding:1px 7px;border-radius:4px;margin-right:7px;vertical-align:1px;
+  }
+  .tag.beschluss{background:#d9f0de;color:#1f6b31;border:1px solid #a9d9b4}
+  .tag.aufgabe{background:#e4edfb;color:#1f4f8f;border:1px solid #b6cdec}
+  .tag.frage{background:#fdf0d8;color:#8a5b12;border:1px solid #efd6a4}
+  .tag.info{background:#eceff1;color:#4b565c;border:1px solid #d3dade}
+
+  table.doc{width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:6px}
+  table.doc th{
+    background:var(--green);color:#fff;text-align:left;padding:7px 10px;font-size:9.5pt;
+    text-transform:uppercase;letter-spacing:.05em;
+  }
+  table.doc td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.doc tr:nth-child(even) td{background:#fafbfa}
+  table.doc .c{text-align:center;white-space:nowrap}
+  .status-pill{
+    display:inline-block;border:1px solid #c9d2ce;border-radius:20px;padding:1px 10px;font-size:9pt;color:#5a6663;
+  }
+  @media print{
+    table.doc th{background:var(--green) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    table.doc tr:nth-child(even) td{background:#fafbfa !important;-webkit-print-color-adjust:exact}
+  }
+
+  .beschluss-card{
+    border:1px solid #bfe0c8;border-left:4px solid var(--green);border-radius:8px;
+    padding:11px 14px;margin-bottom:9px;background:#f7fcf8;page-break-inside:avoid;
+  }
+  .beschluss-card .nr{font-weight:700;color:var(--green-dark);font-size:10pt;letter-spacing:.03em}
+  .beschluss-card .txt{margin-top:3px}
+  .beschluss-card .src{font-size:9pt;color:#78837f;margin-top:4px}
+  @media print{.beschluss-card{background:#f7fcf8 !important;-webkit-print-color-adjust:exact}}
+
+  .dua{
+    text-align:center;font-size:10.5pt;color:#5a6663;font-style:italic;
+    padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:20px 0;
+  }
+  .signatures{display:grid;grid-template-columns:1fr 1fr;gap:44px;margin-top:44px;page-break-inside:avoid}
+  .sig{border-top:1px solid #333;padding-top:6px;font-size:10pt;color:#556}
+  .doc-foot{
+    margin-top:30px;padding:12px 34px 0;border-top:1px solid var(--line);
+    font-size:8.6pt;color:#8a938f;display:flex;justify-content:space-between;gap:14px;
+  }
+  .placeholder-note{
+    text-align:center;color:#98a29e;padding:40px 20px;font-size:10.5pt;
+  }
+
+  /* ---------- Handy ---------- */
+  .layout > *{min-width:0}
+  @media (max-width:1150px){ .layout{grid-template-columns:minmax(0,1fr)} }
+  @media (max-width:700px){
+    body{font-size:16px}
+    .layout{padding:12px 10px;gap:12px}
+    .card .body{padding:14px}
+    input[type=text],input[type=date],input[type=time],textarea,select{font-size:16px}
+    .preview-col{position:static}
+    .paper-wrap{padding:8px;max-height:none}
+    .doc-head{padding:16px 18px;flex-direction:column;align-items:flex-start}
+    .doc-head .meta{text-align:left}
+    .doc-body{padding:18px 18px 0}
+    .doc-foot{padding:12px 18px 0;flex-direction:column}
+    .doc-title{font-size:17pt}
+    .factbox{grid-template-columns:1fr}
+    .factbox div:nth-last-child(2){border-bottom:1px dotted #e6eae8}
+    .signatures{gap:24px}
+    .paper-wrap-actions .btn{flex:1 1 calc(50% - 9px);justify-content:center}
+    .legend td{display:block;padding:1px 0}
+    .legend td:last-child{padding:0 0 6px}
+    .pickerrow select{flex:1}
+    .member-row{flex-wrap:wrap}
+  }
+  .jump-preview{display:none}
+  @media (max-width:1150px){ .jump-preview{display:inline-flex} }
+
+  details.settings{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+  details.settings > summary{
+    cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft);list-style:none;
+    display:flex;align-items:center;gap:7px;
+  }
+  details.settings > summary::-webkit-details-marker{display:none}
+  details.settings > summary::before{content:"▸";transition:transform .15s}
+  details.settings[open] > summary::before{transform:rotate(90deg)}
+  details.settings .inner{padding-top:12px}
+  .gremium-pill{
+    display:inline-block;background:var(--green-soft);border:1px solid #cfe3d4;border-radius:20px;
+    padding:1px 10px;font-size:12.5px;font-weight:600;color:var(--green-dark);
+  }
+
+  /* ---------- Druck ---------- */
+  @media print{
+    @page{size:A4;margin:14mm 15mm 16mm}
+    body{background:#fff}
+    .brandbar,.layout > .input-col,.paper-wrap-actions,.toast{display:none !important}
+    .layout{display:block;padding:0;max-width:none}
+    .preview-col{position:static}
+    .paper-wrap{background:#fff;border:none;padding:0;max-height:none;overflow:visible;box-shadow:none;border-radius:0}
+    .paper{box-shadow:none;max-width:none;padding:0}
+    .doc-head{padding:14px 0 14px}
+    .doc-head.dark,.doc-head.green{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .doc-body{padding:16px 0 0}
+    .doc-foot{padding:10px 0 0}
+    .accentbar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .sec-title{page-break-after:avoid}
+  }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <div id="topMark"></div>
+  <div class="sub">Toplantı-Protokoll · SYK &amp; Birimler</div>
+  <div class="accent"></div>
+</div>
+
+<div class="layout">
+
+  <!-- ============ EINGABE ============ -->
+  <div class="input-col">
+
+    <div class="card">
+      <h2><span class="num">1</span> Sitzungsdaten</h2>
+      <div class="body">
+        <div class="field">
+          <label for="f-abteilung">Wer tagt? (SYK oder Birim)</label>
+          <select id="f-abteilung">
+            <option>SYK</option>
+            <option>Teşkilatlanma</option>
+            <option>Eğitim</option>
+            <option>Orta Öğretim</option>
+            <option>Tanıtma</option>
+            <option>Spor ve Gezi</option>
+            <option>Sosyal Hizmetler</option>
+            <option>GOB</option>
+            <option>Gençlik Lokali</option>
+            <option>Sonstiges Gremium</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-titel">Titel der Sitzung</label>
+          <input type="text" id="f-titel" placeholder="z. B. Monatssitzung Gençlik Teşkilatı">
+        </div>
+        <div class="grid3">
+          <div class="field"><label for="f-datum">Datum</label><input type="date" id="f-datum"></div>
+          <div class="field"><label for="f-von">Beginn</label><input type="time" id="f-von"></div>
+          <div class="field"><label for="f-bis">Ende</label><input type="time" id="f-bis"></div>
+        </div>
+        <div class="field">
+          <label for="f-ort">Ort</label>
+          <input type="text" id="f-ort">
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="f-leitung">Sitzungsleitung</label><input type="text" id="f-leitung" placeholder="Name"></div>
+          <div class="field"><label for="f-protokoll">Protokollführung</label><input type="text" id="f-protokoll" placeholder="Name"></div>
+        </div>
+        <div class="field">
+          <label for="f-teilnehmer">Anwesende (mit Komma trennen)</label>
+          <textarea id="f-teilnehmer" rows="2" placeholder="Ömer, Yusuf, Ahmet, ..."></textarea>
+        </div>
+        <div class="field">
+          <label for="f-entschuldigt">Entschuldigt / abwesend</label>
+          <textarea id="f-entschuldigt" rows="1" placeholder="Namen oder leer lassen"></textarea>
+        </div>
+        <div class="field"><label for="f-naechste">Nächste Sitzung</label><input type="text" id="f-naechste" placeholder="z. B. Samstag, 15.08.2026, 18:00 Uhr"></div>
+
+        <div style="margin-top:6px;border-top:1px solid var(--line);padding-top:14px">
+          <div class="checkrow"><input type="checkbox" id="c-dua" checked><label for="c-dua">Eröffnung mit Besmele &amp; Dua vermerken</label></div>
+          <div class="checkrow"><input type="checkbox" id="c-sig" checked><label for="c-sig">Unterschriftsfelder anzeigen</label></div>
+          <div class="checkrow"><input type="checkbox" id="c-teilnehmerliste" checked><label for="c-teilnehmerliste">Anwesenheit im Kopf ausweisen</label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">2</span> Notizen der Sitzung</h2>
+      <div class="body">
+        <textarea id="notes" spellcheck="true" placeholder="# Rückblick letzte Woche
+Sohbet am Samstag hatte 24 Teilnehmer
+! Sohbet startet ab August um 19:00 Uhr
+@Yusuf: Aushang im Foyer erneuern bis 12.08.2026
+? Wer übernimmt die Anmeldeliste
+i Der neue Jugendraum ist Ende September fertig"></textarea>
+
+        <div class="pickerrow">
+          <label for="member-picker">Person einfügen</label>
+          <select id="member-picker"><option value="">Name wählen …</option></select>
+          <span class="pk-hint">oder im Text einfach <code>@</code> tippen</span>
+        </div>
+
+        <div class="legend">
+          <table>
+            <tr><td><code># Text</code></td><td>neuer Tagesordnungspunkt (TOP)</td></tr>
+            <tr><td><code>Text</code></td><td>normaler Besprechungspunkt</td></tr>
+            <tr><td><code>! Text</code></td><td>Beschluss – wird durchnummeriert</td></tr>
+            <tr><td><code>@Name: Text bis 12.08.</code></td><td>Aufgabe mit Verantwortlichem &amp; Frist</td></tr>
+            <tr><td><code>? Text</code></td><td>offene Frage</td></tr>
+            <tr><td><code>i Text</code></td><td>Information</td></tr>
+          </table>
+        </div>
+
+        <div class="btnrow" style="margin-top:14px">
+          <button class="btn primary" id="btn-generate">Bericht erzeugen</button>
+          <button class="btn" id="btn-example">Beispiel einfügen</button>
+          <button class="btn ghost" id="btn-clear">Notizen leeren</button>
+          <a class="btn jump-preview" href="#paper-anchor">Zur Vorschau ↓</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">3</span> Microsoft Teams</h2>
+      <div class="body">
+        <div id="teams-status"></div>
+
+        <details class="settings" id="settings">
+          <summary>Einstellungen (Workflow &amp; Mitglieder)</summary>
+          <div class="inner">
+            <div class="field">
+              <label for="f-webhook">Workflow-Adresse für <span class="gremium-pill" id="webhook-for">SYK</span></label>
+              <input type="text" id="f-webhook" placeholder="https://default….environment.api.powerplatform.com/… (aus dem Auslöser kopieren)">
+            </div>
+
+            <label style="margin-top:4px">Mitglieder (Name wie in den Notizen + E-Mail für die Planner-Zuweisung)</label>
+            <div id="members"></div>
+            <div class="btnrow" style="margin-top:9px">
+              <button class="btn mini" id="btn-member-add">Person hinzufügen</button>
+              <button class="btn mini" id="btn-member-reset">Standardliste</button>
+              <button class="btn mini" id="btn-json">JSON kopieren</button>
+            </div>
+
+            <div class="note info" style="margin-top:14px">
+              <b>Für Admins:</b> Der Einrichtungslink enthält alle Workflow-Adressen und die Mitgliederliste
+              dieses Geräts. Wer ihn öffnet, hat alles fertig eingerichtet. Nur intern weitergeben
+              (WhatsApp-Gruppe / Teams), nicht öffentlich posten.
+              <div class="btnrow" style="margin-top:9px">
+                <button class="btn mini" id="btn-setup-link">Einrichtungslink kopieren</button>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">4</span> Archiv auf diesem Gerät</h2>
+      <div class="body">
+        <div class="btnrow" style="margin-bottom:12px">
+          <button class="btn" id="btn-save">Protokoll ablegen</button>
+        </div>
+        <div id="archive"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VORSCHAU ============ -->
+  <div class="preview-col" id="paper-anchor">
+    <div class="card paper-wrap-actions">
+      <div class="body btnrow">
+        <button class="btn primary" id="btn-print">Drucken / als PDF speichern</button>
+        <button class="btn" id="btn-html">HTML-Datei speichern</button>
+        <button class="btn" id="btn-md">Markdown kopieren</button>
+        <button class="btn" id="btn-wa">Kurzfassung für WhatsApp</button>
+        <button class="btn teams" id="btn-teams">An Teams senden</button>
+      </div>
+    </div>
+    <div class="paper-wrap">
+      <div class="paper" id="paper"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   Konstanten & Hilfen
+   ============================================================ */
+const LS = {
+  form:    "igmg_meeting_form_v1",
+  notes:   "igmg_meeting_notes_v1",
+  archive: "igmg_meeting_archive_v1",
+  webhooks:"igmg_meeting_webhooks_v2",       // { "SYK": "https://…", "Tanıtma": "https://…" }
+  members: "igmg_meeting_members_v1",
+  stdMembers: "igmg_meeting_std_members_v1"  // Mitgliederliste aus dem Einrichtungslink
+};
+
+/* ------------------------------------------------------------
+   VEREINSLOGO – fest im Dokument verankert.
+   LOGO_SRC enthält das Logo als Base64-Datei (data:image/png;base64,...),
+   damit die HTML-Datei überall funktioniert, auch weitergeschickt.
+   Ist LOGO_SRC leer, wird "IGMG-Logo.png" aus demselben Ordner geladen.
+   ------------------------------------------------------------ */
+const LOGO_SRC = "data:image/png;base64,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";
+const LOGO_FILE = "IGMG-Logo.png";
+const LOGO_URL = LOGO_SRC || LOGO_FILE;
+
+// Wortmarke als Notnagel, falls die Bilddatei fehlt
+const LOGO_FALLBACK = '<div class="fallback">Ortsverein Hannover<b>Jugend · IGMG</b></div>';
+
+function logoImg(){
+  return '<img src="' + LOGO_URL + '" alt="IGMG Ortsverein Hannover – Jugend">';
+}
+
+// zeigt die Wortmarke, falls die Bilddatei nicht geladen werden kann
+function attachLogoFallback(container){
+  if(!container) return;
+  const img = container.querySelector("img");
+  if(img) img.addEventListener("error", () => { container.innerHTML = LOGO_FALLBACK; });
+}
+
+const ORG = {
+  name:    "IGMG Ortsverein Hannover e. V.",
+  unit:    "Gençlik Teşkilatı · Jugendabteilung",
+  street:  "Weidendamm 9",
+  city:    "30167 Hannover",
+  mail:    "gthannover@igmghannover.de",
+  web:     "gthannover.de"
+};
+
+/* Die Mitgliederliste steht absichtlich NICHT im Code: Die Seite ist öffentlich erreichbar.
+   Namen, E-Mail-Adressen und Workflow-Adressen kommen über den Einrichtungslink
+   (…/#setup=…) und bleiben danach im Browser des jeweiligen Geräts. */
+const DEFAULT_MEMBERS = [];
+
+const GREMIUM_DEFAULT = "SYK";
+
+const MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const DAYS   = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+
+const $  = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+let toastTimer = null;
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+function formatDate(iso){
+  if(!iso) return "";
+  const d = new Date(iso + "T00:00:00");
+  if(isNaN(d)) return iso;
+  return DAYS[d.getDay()] + ", " + String(d.getDate()).padStart(2,"0") + ". " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+}
+function yearOf(iso){
+  const d = iso ? new Date(iso + "T00:00:00") : new Date();
+  return isNaN(d) ? new Date().getFullYear() : d.getFullYear();
+}
+function splitNames(s){
+  return String(s||"").split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean);
+}
+
+/* ============================================================
+   Notizen-Parser
+   ============================================================ */
+
+// Fristen wie "bis 12.08.2026", "bis Freitag", "bis zur nächsten Sitzung"
+const DUE_PATTERNS = [
+  /\bbis\s+(?:zum\s+|zur\s+|spätestens\s+)?(\d{1,2}\.\s?\d{1,2}\.(?:\s?\d{2,4})?)/i,
+  /\bbis\s+(?:zum\s+|zur\s+)?(nächsten?\s+Sitzung|nächsten?\s+Treffen|Sohbet|Wochenende|Monatsende|Freitagsgebet)/i,
+  /\bbis\s+(Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)\b/i,
+  /\bbis\s+(\d{1,2}\.\s?(?:Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)(?:\s+\d{4})?)/i,
+  /\b(?:Frist|Deadline|Termin)\s*[:=]\s*([^,;.]+)/i
+];
+
+// liefert die Frist und den Text ohne die Fristangabe
+function matchDue(text){
+  for(const re of DUE_PATTERNS){
+    const m = text.match(re);
+    if(m) return {
+      due: m[1].replace(/\s+/g," ").trim(),
+      clean: text.replace(m[0], "").replace(/\s{2,}/g," ").trim()
+    };
+  }
+  return { due:"", clean:text };
+}
+function extractDue(text){ return matchDue(text).due; }
+
+// Verantwortliche: "@Name", "@Name:", oder Zeilenstart "Name -> Aufgabe"
+function extractOwner(text){
+  const at = text.match(/@([A-Za-zÄÖÜäöüßçÇğĞıİşŞ][\wÄÖÜäöüßçÇğĞıİşŞ.\-]*(?:\s+[A-ZÄÖÜÇĞİŞ][\wÄÖÜäöüßçÇğĞıİşŞ.\-]*)?)/);
+  if(at) return { owner: at[1].trim().replace(/[.:,]$/,""), rest: text.replace(at[0], "").trim() };
+  const arrow = text.match(/^([^:>\-]{2,32}?)\s*(?:->|=>|→)\s*(.+)$/);
+  if(arrow) return { owner: arrow[1].trim(), rest: arrow[2].trim() };
+  return { owner: "", rest: text };
+}
+
+function cleanText(t, type){
+  t = t.replace(/^[\s:\-–—]+/, "").replace(/\s{2,}/g," ").trim();
+  if(t) t = t.charAt(0).toUpperCase() + t.slice(1);
+  if(t && !/[.!?:)\]]$/.test(t)) t += (type === "frage" ? "?" : ".");
+  return t;
+}
+
+function parseNotes(raw){
+  const lines = String(raw||"").split(/\r?\n/);
+  const tops = [];
+  let current = null;
+
+  const ensureTop = () => {
+    if(!current){
+      current = { title:"Allgemeines", items:[] };
+      tops.push(current);
+    }
+    return current;
+  };
+
+  for(let line of lines){
+    const orig = line;
+    line = line.trim();
+    if(!line) continue;
+
+    // --- Tagesordnungspunkt ---
+    let m = line.match(/^#{1,3}\s*(.+)$/);
+    if(!m) m = line.match(/^(?:TOP|Top)\s*\d*\s*[:.\-]\s*(.+)$/);
+    if(!m && /^[A-ZÄÖÜ0-9][^a-zäöü]{2,60}$/.test(line) && !/[.!?]$/.test(line) && line.length < 62){
+      // komplett großgeschriebene Zeile = Überschrift
+      m = [line, line];
+    }
+    if(m){
+      current = { title: m[1].replace(/[:#]+$/,"").trim(), items: [] };
+      tops.push(current);
+      continue;
+    }
+
+    // Aufzählungszeichen entfernen
+    let body = line.replace(/^[\-\*•·–—]\s*/, "").trim();
+    if(!body) continue;
+
+    let type = "punkt";
+
+    // --- Typ bestimmen ---
+    if(/^!+\s*/.test(body) || /^(Beschluss|Entscheidung|Beschlossen|Karar)\s*[:\-]/i.test(body)){
+      type = "beschluss";
+      body = body.replace(/^!+\s*/,"").replace(/^(Beschluss|Entscheidung|Beschlossen|Karar)\s*[:\-]\s*/i,"");
+    } else if(/^\?+\s*/.test(body) || /^(Offen|Frage|Klären|Zu klären)\s*[:\-]/i.test(body)){
+      type = "frage";
+      body = body.replace(/^\?+\s*/,"").replace(/^(Offen|Frage|Klären|Zu klären)\s*[:\-]\s*/i,"");
+    } else if(/^i\s+/i.test(body) && !/^ich\b/i.test(body) || /^(Info|Information|Hinweis)\s*[:\-]/i.test(body)){
+      type = "info";
+      body = body.replace(/^i\s+/i,"").replace(/^(Info|Information|Hinweis)\s*[:\-]\s*/i,"");
+    } else if(/@/.test(body) || /^(Aufgabe|Todo|To-?do|Auftrag|Görev)\s*[:\-]/i.test(body) || /^[^:>\-]{2,32}\s*(?:->|=>|→)\s*.+/.test(body)){
+      type = "aufgabe";
+      body = body.replace(/^(Aufgabe|Todo|To-?do|Auftrag|Görev)\s*[:\-]\s*/i,"");
+    }
+
+    const entry = { type };
+
+    if(type === "aufgabe"){
+      const { owner, rest } = extractOwner(body);
+      const { due, clean } = matchDue(rest || body);
+      entry.owner = owner;
+      entry.due   = due;
+      entry.text  = cleanText(clean || rest);
+    } else {
+      entry.text = cleanText(body, type);
+      const due = extractDue(body);
+      if(due) entry.due = due;
+    }
+
+    if(!entry.text) continue;
+    ensureTop().items.push(entry);
+  }
+
+  return tops.filter(t => t.items.length > 0 || t.title);
+}
+
+/* ============================================================
+   Daten einsammeln
+   ============================================================ */
+function collect(){
+  return {
+    titel: $("f-titel").value.trim(),
+    datum: $("f-datum").value,
+    von: $("f-von").value,
+    bis: $("f-bis").value,
+    ort: $("f-ort").value.trim(),
+    leitung: $("f-leitung").value.trim(),
+    protokoll: $("f-protokoll").value.trim(),
+    teilnehmer: $("f-teilnehmer").value.trim(),
+    entschuldigt: $("f-entschuldigt").value.trim(),
+    naechste: $("f-naechste").value.trim(),
+    abteilung: $("f-abteilung").value,
+    dua: $("c-dua").checked,
+    sig: $("c-sig").checked,
+    anwesenheit: $("c-teilnehmerliste").checked,
+    notes: $("notes").value
+  };
+}
+
+function apply(d){
+  if(!d) return;
+  const set = (id, v) => { if(v !== undefined && v !== null && $(id)) $(id).value = v; };
+  set("f-titel", d.titel); set("f-datum", d.datum); set("f-von", d.von); set("f-bis", d.bis);
+  set("f-ort", d.ort); set("f-leitung", d.leitung); set("f-protokoll", d.protokoll);
+  set("f-teilnehmer", d.teilnehmer); set("f-entschuldigt", d.entschuldigt);
+  set("f-naechste", d.naechste); set("f-abteilung", d.abteilung);
+  if(!$("f-abteilung").value) $("f-abteilung").value = GREMIUM_DEFAULT;
+  if(typeof d.dua === "boolean") $("c-dua").checked = d.dua;
+  if(typeof d.sig === "boolean") $("c-sig").checked = d.sig;
+  if(typeof d.anwesenheit === "boolean") $("c-teilnehmerliste").checked = d.anwesenheit;
+  if(typeof d.notes === "string") $("notes").value = d.notes;
+}
+
+/* ============================================================
+   Dokument rendern
+   ============================================================ */
+function buildDoc(d, tops){
+  const year = yearOf(d.datum);
+  const anwesende = splitNames(d.teilnehmer);
+  const abwesende = splitNames(d.entschuldigt);
+
+  // Beschlüsse und Aufgaben global sammeln
+  const beschluesse = [];
+  const aufgaben = [];
+  tops.forEach((t, ti) => {
+    t.items.forEach(it => {
+      if(it.type === "beschluss") beschluesse.push({ ...it, top: t.title, topNr: ti+1 });
+      if(it.type === "aufgabe")   aufgaben.push({ ...it, top: t.title, topNr: ti+1 });
+    });
+  });
+
+  const zeit = d.von ? (d.von + (d.bis ? "–" + d.bis : "") + " Uhr") : "";
+  const dateStr = formatDate(d.datum);
+  const aktenzeichen = "GT-HAN/" + year + "/" + String(archiveCount()+1).padStart(3,"0");
+
+  /* ---- Briefkopf: immer das Vereinslogo auf dunklem Balken ---- */
+  let html = "";
+  html += '<div class="doc-head dark">' +
+            '<div class="brand">' + logoImg() + '</div>' +
+            '<div class="meta">' +
+              esc(ORG.name) + '<br>' +
+              esc(ORG.street) + ' · ' + esc(ORG.city) + '<br>' +
+              esc(ORG.mail) +
+            '</div>' +
+          '</div><div class="accentbar"></div>';
+
+  html += '<div class="doc-body">';
+  html += '<h1 class="doc-title">' + esc(d.titel || "Sitzungsprotokoll") + '</h1>';
+  html += '<p class="doc-sub">Protokoll der Sitzung · ' + esc(d.abteilung || "") +
+          (dateStr ? ' · ' + esc(dateStr) : '') + '</p>';
+
+  /* ---- Eckdaten ---- */
+  const facts = [];
+  facts.push(["Datum", dateStr || "—"]);
+  facts.push(["Uhrzeit", zeit || "—"]);
+  facts.push(["Ort", d.ort || "—"]);
+  facts.push(["Gremium", d.abteilung || "—"]);
+  facts.push(["Sitzungsleitung", d.leitung || "—"]);
+  facts.push(["Protokollführung", d.protokoll || "—"]);
+  if(d.anwesenheit){
+    facts.push(["Anwesend (" + anwesende.length + ")", anwesende.length ? anwesende.join(", ") : "—"]);
+    facts.push(["Entschuldigt", abwesende.length ? abwesende.join(", ") : "—"]);
+  }
+  facts.push(["Aktenzeichen", aktenzeichen]);
+  facts.push(["Erstellt am", new Date().toLocaleDateString("de-DE")]);
+
+  html += '<div class="factbox">' + facts.map(f =>
+    '<div><b>' + esc(f[0]) + '</b><span>' + esc(f[1]) + '</span></div>').join("") + '</div>';
+
+  if(d.dua){
+    html += '<div class="dua">Die Sitzung wurde mit der Besmele und einer Dua eröffnet.</div>';
+  }
+
+  /* ---- Tagesordnung ---- */
+  if(tops.length){
+    html += '<div class="sec-title"><span class="badge">A</span> Tagesordnung</div>';
+    html += '<ol style="margin:0 0 6px;padding-left:22px">' +
+            tops.map(t => '<li>' + esc(t.title) + '</li>').join("") + '</ol>';
+
+    /* ---- Verlauf ---- */
+    html += '<div class="sec-title"><span class="badge">B</span> Verlauf und Ergebnisse</div>';
+    let bNr = 0;
+    tops.forEach((t, i) => {
+      html += '<div class="top-block">';
+      html += '<div class="top-head">TOP ' + (i+1) + ' · ' + esc(t.title) + '</div>';
+      if(t.items.length){
+        html += '<ul>';
+        t.items.forEach(it => {
+          if(it.type === "beschluss"){
+            bNr++;
+            html += '<li><span class="tag beschluss">Beschluss ' + bNr + '</span>' + esc(it.text) + '</li>';
+          } else if(it.type === "aufgabe"){
+            html += '<li><span class="tag aufgabe">Aufgabe</span>' + esc(it.text) +
+                    (it.owner ? ' <em>(' + esc(it.owner) + (it.due ? ", bis " + esc(it.due) : "") + ')</em>' :
+                                (it.due ? ' <em>(bis ' + esc(it.due) + ')</em>' : '')) + '</li>';
+          } else if(it.type === "frage"){
+            html += '<li><span class="tag frage">Offen</span>' + esc(it.text) + '</li>';
+          } else if(it.type === "info"){
+            html += '<li><span class="tag info">Info</span>' + esc(it.text) + '</li>';
+          } else {
+            html += '<li>' + esc(it.text) + '</li>';
+          }
+        });
+        html += '</ul>';
+      } else {
+        html += '<p style="color:#889;margin:0">Keine Wortmeldungen protokolliert.</p>';
+      }
+      html += '</div>';
+    });
+  } else {
+    html += '<div class="placeholder-note">Noch keine Notizen erfasst.<br>' +
+            'Links Stichpunkte eintragen – der Bericht entsteht automatisch.</div>';
+  }
+
+  /* ---- Beschlüsse ---- */
+  if(beschluesse.length){
+    html += '<div class="sec-title"><span class="badge">C</span> Beschlüsse</div>';
+    beschluesse.forEach((b, i) => {
+      html += '<div class="beschluss-card">' +
+                '<div class="nr">Beschluss ' + (i+1) + '/' + year + '</div>' +
+                '<div class="txt">' + esc(b.text) + '</div>' +
+                '<div class="src">zu TOP ' + b.topNr + ' · ' + esc(b.top) +
+                  (b.due ? ' · Umsetzung bis ' + esc(b.due) : '') + '</div>' +
+              '</div>';
+    });
+  }
+
+  /* ---- Maßnahmenplan ---- */
+  if(aufgaben.length){
+    html += '<div class="sec-title"><span class="badge">D</span> Maßnahmenplan</div>';
+    html += '<table class="doc"><thead><tr>' +
+              '<th style="width:34px">Nr.</th><th>Aufgabe</th>' +
+              '<th style="width:120px">Verantwortlich</th>' +
+              '<th style="width:110px">Frist</th>' +
+              '<th style="width:82px">Status</th>' +
+            '</tr></thead><tbody>';
+    aufgaben.forEach((a, i) => {
+      html += '<tr>' +
+                '<td class="c">' + (i+1) + '</td>' +
+                '<td>' + esc(a.text) + '<br><span style="font-size:8.8pt;color:#8a938f">TOP ' + a.topNr + ' · ' + esc(a.top) + '</span></td>' +
+                '<td>' + esc(a.owner || "offen") + '</td>' +
+                '<td>' + esc(a.due || "—") + '</td>' +
+                '<td class="c"><span class="status-pill">offen</span></td>' +
+              '</tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  /* ---- Offene Punkte ---- */
+  const fragen = [];
+  tops.forEach((t, ti) => t.items.forEach(it => { if(it.type === "frage") fragen.push({ ...it, top:t.title, topNr:ti+1 }); }));
+  if(fragen.length){
+    html += '<div class="sec-title"><span class="badge">E</span> Offene Punkte für die nächste Sitzung</div><ul>';
+    fragen.forEach(f => html += '<li>' + esc(f.text) + ' <span style="color:#8a938f;font-size:9.5pt">(TOP ' + f.topNr + ')</span></li>');
+    html += '</ul>';
+  }
+
+  /* ---- Abschluss ---- */
+  if(d.naechste || d.dua){
+    html += '<div class="sec-title"><span class="badge">F</span> Abschluss</div>';
+    if(d.naechste) html += '<p style="margin:0 0 6px"><strong>Nächste Sitzung:</strong> ' + esc(d.naechste) + '</p>';
+    if(d.bis) html += '<p style="margin:0 0 6px">Die Sitzung wurde um ' + esc(d.bis) + ' Uhr geschlossen.</p>';
+    if(d.dua) html += '<p style="margin:0">Der Abschluss erfolgte mit einer gemeinsamen Dua.</p>';
+  }
+
+  /* ---- Unterschriften ---- */
+  if(d.sig){
+    html += '<div class="signatures">' +
+              '<div class="sig">' + esc(d.leitung || "Sitzungsleitung") + '<br><span style="font-size:9pt">Sitzungsleitung</span></div>' +
+              '<div class="sig">' + esc(d.protokoll || "Protokollführung") + '<br><span style="font-size:9pt">Protokollführung</span></div>' +
+            '</div>';
+  }
+  html += '</div>'; // doc-body
+
+  html += '<div class="doc-foot">' +
+            '<span>' + esc(ORG.name) + ' · ' + esc(ORG.unit) + ' · ' + esc(ORG.street) + ', ' + esc(ORG.city) + '</span>' +
+            '<span>' + esc(aktenzeichen) + '</span>' +
+          '</div>';
+
+  return { html, beschluesse, aufgaben, fragen, aktenzeichen };
+}
+
+let lastDoc = null;
+function render(){
+  const d = collect();
+  const tops = parseNotes(d.notes);
+  lastDoc = buildDoc(d, tops);
+  lastDoc.data = d;
+  lastDoc.tops = tops;
+  $("paper").innerHTML = lastDoc.html;
+  attachLogoFallback($("paper").querySelector(".doc-head .brand"));
+  updateTeamsStatus();
+}
+
+/* ============================================================
+   Export
+   ============================================================ */
+function toMarkdown(){
+  const d = lastDoc.data, tops = lastDoc.tops;
+  const L = [];
+  L.push("# " + (d.titel || "Sitzungsprotokoll"));
+  L.push("");
+  L.push("**" + ORG.name + " · " + ORG.unit + "**  ");
+  L.push(ORG.street + ", " + ORG.city);
+  L.push("");
+  L.push("| | |");
+  L.push("|---|---|");
+  L.push("| Datum | " + (formatDate(d.datum) || "—") + " |");
+  L.push("| Uhrzeit | " + (d.von ? d.von + (d.bis ? "–" + d.bis : "") + " Uhr" : "—") + " |");
+  L.push("| Ort | " + (d.ort || "—") + " |");
+  L.push("| Gremium | " + (d.abteilung || "—") + " |");
+  L.push("| Sitzungsleitung | " + (d.leitung || "—") + " |");
+  L.push("| Protokollführung | " + (d.protokoll || "—") + " |");
+  L.push("| Anwesend | " + (splitNames(d.teilnehmer).join(", ") || "—") + " |");
+  L.push("| Entschuldigt | " + (splitNames(d.entschuldigt).join(", ") || "—") + " |");
+  L.push("");
+  L.push("## Tagesordnung");
+  tops.forEach((t,i)=>L.push((i+1) + ". " + t.title));
+  L.push("");
+  L.push("## Verlauf und Ergebnisse");
+  let bNr = 0;
+  tops.forEach((t,i)=>{
+    L.push("");
+    L.push("### TOP " + (i+1) + " · " + t.title);
+    t.items.forEach(it=>{
+      if(it.type === "beschluss"){ bNr++; L.push("- **Beschluss " + bNr + ":** " + it.text); }
+      else if(it.type === "aufgabe") L.push("- **Aufgabe:** " + it.text + (it.owner ? " _(" + it.owner + (it.due ? ", bis " + it.due : "") + ")_" : ""));
+      else if(it.type === "frage") L.push("- **Offen:** " + it.text);
+      else if(it.type === "info") L.push("- _Info:_ " + it.text);
+      else L.push("- " + it.text);
+    });
+  });
+  if(lastDoc.beschluesse.length){
+    L.push("");
+    L.push("## Beschlüsse");
+    lastDoc.beschluesse.forEach((b,i)=>L.push((i+1) + "/" + yearOf(d.datum) + " — " + b.text + "  \n   _zu TOP " + b.topNr + " · " + b.top + "_"));
+  }
+  if(lastDoc.aufgaben.length){
+    L.push("");
+    L.push("## Maßnahmenplan");
+    L.push("| Nr. | Aufgabe | Verantwortlich | Frist | Status |");
+    L.push("|---|---|---|---|---|");
+    lastDoc.aufgaben.forEach((a,i)=>L.push("| " + (i+1) + " | " + a.text + " | " + (a.owner||"offen") + " | " + (a.due||"—") + " | offen |"));
+  }
+  if(lastDoc.fragen.length){
+    L.push("");
+    L.push("## Offene Punkte");
+    lastDoc.fragen.forEach(f=>L.push("- " + f.text));
+  }
+  if(d.naechste){ L.push(""); L.push("**Nächste Sitzung:** " + d.naechste); }
+  L.push("");
+  L.push("---");
+  L.push((d.leitung || "Sitzungsleitung") + " · Sitzungsleitung");
+  L.push((d.protokoll || "Protokollführung") + " · Protokollführung");
+  return L.join("\n");
+}
+
+function toWhatsapp(){
+  const d = lastDoc.data;
+  const L = [];
+  L.push("*" + (d.titel || "Sitzung") + "*");
+  L.push(formatDate(d.datum) + (d.von ? ", " + d.von + " Uhr" : ""));
+  L.push("");
+  if(lastDoc.beschluesse.length){
+    L.push("*Beschlüsse*");
+    lastDoc.beschluesse.forEach((b,i)=>L.push((i+1) + ") " + b.text));
+    L.push("");
+  }
+  if(lastDoc.aufgaben.length){
+    L.push("*Aufgaben*");
+    lastDoc.aufgaben.forEach(a=>L.push("• " + (a.owner ? a.owner + ": " : "") + a.text + (a.due ? " (bis " + a.due + ")" : "")));
+    L.push("");
+  }
+  if(d.naechste) L.push("*Nächste Sitzung:* " + d.naechste);
+  return L.join("\n").trim();
+}
+
+function copy(text, msg){
+  const done = () => toast(msg);
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done, ()=>fallbackCopy(text, done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }
+  catch(e){ toast("Kopieren nicht möglich – bitte manuell markieren"); }
+  document.body.removeChild(ta);
+}
+
+// versucht, das Logo für den Export als Base64 einzubetten,
+// damit die exportierte Datei auch ohne Bilddatei daneben funktioniert
+function inlineLogo(html){
+  if(LOGO_SRC) return html;
+  const img = $("paper").querySelector(".doc-head img");
+  if(!img || !img.naturalWidth) return html;
+  try{
+    const c = document.createElement("canvas");
+    c.width = img.naturalWidth; c.height = img.naturalHeight;
+    c.getContext("2d").drawImage(img, 0, 0);
+    const data = c.toDataURL("image/png");
+    return html.split('src="' + LOGO_URL + '"').join('src="' + data + '"');
+  }catch(e){ return html; }
+}
+
+function saveHtmlFile(){
+  const styles = document.querySelector("style").textContent;
+  const d = lastDoc.data;
+  const doc =
+    '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">' +
+    '<title>' + esc(d.titel || "Sitzungsprotokoll") + '</title><style>' + styles +
+    '\nbody{background:#fff}.paper{box-shadow:none;margin:0 auto;max-width:820px}</style></head>' +
+    '<body><div class="paper">' + inlineLogo(lastDoc.html) + '</div></body></html>';
+  const blob = new Blob([doc], { type:"text/html;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "Protokoll_" + (d.datum || new Date().toISOString().slice(0,10)) + "_" +
+               (d.titel || "Sitzung").replace(/[^\wÄÖÜäöüß\- ]/g,"").replace(/\s+/g,"-").slice(0,40) + ".html";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  toast("HTML-Datei gespeichert");
+}
+
+/* ============================================================
+   Microsoft Teams: Mitglieder, Fristen, Versand
+   ============================================================ */
+
+/* ---- Mitgliederliste (Name -> E-Mail) ---- */
+function stdMembers(){
+  try{
+    const m = JSON.parse(localStorage.getItem(LS.stdMembers) || "null");
+    if(Array.isArray(m)) return m.map(x => ({ ...x }));
+  }catch(e){}
+  return DEFAULT_MEMBERS.map(m => ({ ...m }));
+}
+function readMembers(){
+  try{
+    const raw = localStorage.getItem(LS.members);
+    if(raw === null) return stdMembers();  // erster Start
+    const m = JSON.parse(raw);
+    return Array.isArray(m) ? m : [];
+  }catch(e){ return stdMembers(); }
+}
+function writeMembers(m){ localStorage.setItem(LS.members, JSON.stringify(m)); }
+
+function renderMembers(){
+  const box = $("members");
+  const list = readMembers();
+  if(!list.length) list.push({ name:"", mail:"" });
+  box.innerHTML = list.map((m,i) =>
+    '<div class="member-row">' +
+      '<input type="text" data-mi="' + i + '" data-mf="name" placeholder="Name (wie in den Notizen)" value="' + esc(m.name) + '">' +
+      '<input type="text" data-mi="' + i + '" data-mf="mail" placeholder="vorname.name@…" value="' + esc(m.mail) + '">' +
+      '<button class="del" data-mdel="' + i + '" title="Zeile entfernen">×</button>' +
+    '</div>').join("");
+}
+
+$("members").addEventListener("input", e => {
+  const i = e.target.getAttribute("data-mi"), f = e.target.getAttribute("data-mf");
+  if(i === null) return;
+  const list = readMembers();
+  while(list.length <= +i) list.push({ name:"", mail:"" });
+  list[+i][f] = e.target.value;
+  writeMembers(list);
+  renderQuickNames();
+  updateTeamsStatus();
+});
+$("members").addEventListener("click", e => {
+  const d = e.target.getAttribute("data-mdel");
+  if(d === null) return;
+  const list = readMembers();
+  list.splice(+d,1); writeMembers(list); renderMembers(); renderQuickNames(); updateTeamsStatus();
+});
+$("btn-member-add").addEventListener("click", ()=>{
+  const list = readMembers(); list.push({ name:"", mail:"" }); writeMembers(list); renderMembers();
+});
+$("btn-member-reset").addEventListener("click", ()=>{
+  if(!confirm("Mitgliederliste auf den Stand aus dem Einrichtungslink zurücksetzen?")) return;
+  writeMembers(stdMembers());
+  renderMembers(); renderQuickNames(); updateTeamsStatus();
+  toast("Standardliste wiederhergestellt");
+});
+
+/* ============================================================
+   Personenauswahl: Dropdown + @-Vorschläge im Notizfeld
+   ============================================================ */
+function activeMembers(){
+  return readMembers().filter(m => m.name && m.name.trim() && m.mail && m.mail.trim());
+}
+function firstNameOf(m){ return m.name.trim().split(/\s+/)[0]; }
+
+/* ---- Dropdown ---- */
+function renderQuickNames(){
+  const sel = $("member-picker");
+  const list = activeMembers();
+  sel.innerHTML = '<option value="">Name wählen …</option>' + list.map(m =>
+    '<option value="' + esc(firstNameOf(m)) + '">' + esc(m.name) + '</option>').join("");
+  sel.disabled = !list.length;
+}
+
+$("member-picker").addEventListener("change", e => {
+  const n = e.target.value;
+  e.target.value = "";
+  if(!n) return;
+  const ta = $("notes");
+  const start = ta.selectionStart, davor = ta.value.slice(0, start);
+  const prefix = (davor === "" || davor.endsWith("\n")) ? "" : "\n";
+  replaceInNotes(start, start, prefix + "@" + n + ": ");
+});
+
+/* Text an einer Stelle einsetzen und Cursor dahinter parken */
+function replaceInNotes(from, to, text){
+  const ta = $("notes");
+  ta.value = ta.value.slice(0, from) + text + ta.value.slice(to);
+  const pos = from + text.length;
+  ta.focus();
+  ta.setSelectionRange(pos, pos);
+  render(); persist();
+}
+
+/* ---- Vorschlagsliste ---- */
+const pop = document.createElement("div");
+pop.className = "mention-pop";
+document.body.appendChild(pop);
+
+let popItems = [], popIndex = 0, popFrom = -1, popTo = -1;
+
+// Zeichen, die nach dem @ noch zum Namen gehören dürfen
+const NAME_CHARS = "A-Za-zÄÖÜäöüßÇĞİIŞÖÜçğıişöü.\\-";
+
+function mentionContext(){
+  const ta = $("notes");
+  if(ta.selectionStart !== ta.selectionEnd) return null;
+  const caret = ta.selectionStart;
+  const davor = ta.value.slice(0, caret);
+  const m = davor.match(new RegExp("@([" + NAME_CHARS + "]*)$"));
+  if(!m) return null;
+  // nur direkt nach Zeilenanfang, Leerzeichen oder Satzzeichen – nicht mitten in einer E-Mail
+  const vorAt = davor.charAt(davor.length - m[0].length - 1);
+  if(vorAt && !/[\s(\[,;:]/.test(vorAt)) return null;
+  return { query: m[1], from: caret - m[0].length, to: caret };
+}
+
+function markPrefix(text, q){
+  if(!q) return esc(text);
+  const i = normName(text).indexOf(normName(q));
+  if(i < 0) return esc(text);
+  return esc(text.slice(0,i)) + "<em>" + esc(text.slice(i, i+q.length)) + "</em>" + esc(text.slice(i+q.length));
+}
+
+function showMentions(ctx){
+  const q = normName(ctx.query);
+  popItems = activeMembers().filter(m => !q || normName(m.name).split(" ").some(w => w.startsWith(q)));
+  popFrom = ctx.from; popTo = ctx.to; popIndex = 0;
+
+  if(!popItems.length){
+    pop.innerHTML = '<div class="empty">Kein Treffer – Name frei eintippen</div>';
+  } else {
+    pop.innerHTML = popItems.map((m,i) =>
+      '<div class="mi' + (i===0 ? ' sel' : '') + '" data-i="' + i + '">' +
+        '<b>' + markPrefix(m.name, ctx.query) + '</b>' +
+        '<span>' + esc(m.mail) + '</span>' +
+      '</div>').join("");
+  }
+  positionPop();
+  pop.classList.add("show");
+}
+
+function hideMentions(){ pop.classList.remove("show"); popItems = []; popFrom = -1; }
+
+/* Pixelposition des Cursors über ein unsichtbares Spiegelelement bestimmen */
+function positionPop(){
+  const ta = $("notes"), cs = getComputedStyle(ta), r = ta.getBoundingClientRect();
+  const mirror = document.createElement("div");
+  ["fontFamily","fontSize","fontWeight","lineHeight","letterSpacing","textTransform",
+   "paddingTop","paddingRight","paddingBottom","paddingLeft",
+   "borderTopWidth","borderRightWidth","borderBottomWidth","borderLeftWidth"]
+    .forEach(p => mirror.style[p] = cs[p]);
+  Object.assign(mirror.style, {
+    position:"absolute", visibility:"hidden", whiteSpace:"pre-wrap", wordWrap:"break-word",
+    boxSizing:cs.boxSizing, width:ta.clientWidth + "px", top:"0", left:"-9999px"
+  });
+  mirror.textContent = ta.value.slice(0, popTo);
+  const marker = document.createElement("span");
+  marker.textContent = "​";
+  mirror.appendChild(marker);
+  document.body.appendChild(mirror);
+  const top = marker.offsetTop, left = marker.offsetLeft, lh = parseFloat(cs.lineHeight) || 20;
+  document.body.removeChild(mirror);
+
+  let x = r.left + window.scrollX + left;
+  let y = r.top + window.scrollY + top - ta.scrollTop + lh + 4;
+  x = Math.min(x, window.scrollX + document.documentElement.clientWidth - 330);
+  pop.style.left = Math.max(8, x) + "px";
+  pop.style.top  = y + "px";
+}
+
+function pickMention(i){
+  const m = popItems[i];
+  if(!m) return;
+  const from = popFrom, to = popTo;   // vor dem Schließen sichern
+  hideMentions();
+  replaceInNotes(from, to, "@" + firstNameOf(m) + ": ");
+}
+
+function highlight(){
+  [...pop.querySelectorAll(".mi")].forEach((el,i) => el.classList.toggle("sel", i === popIndex));
+  const cur = pop.querySelector(".mi.sel");
+  if(cur) cur.scrollIntoView({ block:"nearest" });
+}
+
+$("notes").addEventListener("keydown", e => {
+  if(!pop.classList.contains("show")) return;
+  if(e.key === "ArrowDown"){ e.preventDefault(); popIndex = (popIndex+1) % Math.max(popItems.length,1); highlight(); }
+  else if(e.key === "ArrowUp"){ e.preventDefault(); popIndex = (popIndex-1+popItems.length) % Math.max(popItems.length,1); highlight(); }
+  else if(e.key === "Enter" || e.key === "Tab"){ if(popItems.length){ e.preventDefault(); pickMention(popIndex); } }
+  else if(e.key === "Escape"){ e.preventDefault(); hideMentions(); }
+});
+
+["input","click","keyup"].forEach(ev => $("notes").addEventListener(ev, e => {
+  if(ev === "keyup" && ["ArrowDown","ArrowUp","Enter","Tab","Escape"].includes(e.key)) return;
+  const ctx = mentionContext();
+  if(ctx) showMentions(ctx); else hideMentions();
+}));
+$("notes").addEventListener("blur", () => setTimeout(hideMentions, 150));
+window.addEventListener("resize", hideMentions);
+
+pop.addEventListener("mousedown", e => {
+  const el = e.target.closest(".mi");
+  if(!el) return;
+  e.preventDefault();
+  pickMention(+el.getAttribute("data-i"));
+});
+
+// Namen vergleichen: Groß/Klein, Akzente und türkische Zeichen egal
+function normName(s){
+  return String(s||"").toLowerCase()
+    .replace(/ı/g,"i").replace(/İ/g,"i").replace(/ş/g,"s").replace(/ğ/g,"g")
+    .replace(/ç/g,"c").replace(/ö/g,"o").replace(/ü/g,"u").replace(/ä/g,"a").replace(/ß/g,"ss")
+    .normalize("NFD").replace(/[̀-ͯ]/g,"")
+    .replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+}
+function findMember(name){
+  const n = normName(name);
+  if(!n) return null;
+  const list = readMembers().filter(m => m.name && m.mail);
+  let hit = list.find(m => normName(m.name) === n);
+  if(hit) return hit;
+  // Vorname genügt
+  hit = list.find(m => normName(m.name).split(" ")[0] === n.split(" ")[0]);
+  return hit || null;
+}
+
+/* ---- Frist als echtes Datum für Planner ---- */
+function isoOf(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function resolveDueISO(due, baseISO, naechste){
+  if(!due) return "";
+  const base = baseISO ? new Date(baseISO + "T00:00:00") : new Date();
+  const txt = due.trim();
+
+  // 12.08.2026 / 12.8. / 12. 08. 26
+  let m = txt.match(/^(\d{1,2})\.\s?(\d{1,2})\.(?:\s?(\d{2,4}))?$/);
+  if(m){
+    let y = m[3] ? (+m[3] < 100 ? 2000 + +m[3] : +m[3]) : base.getFullYear();
+    const d = new Date(y, +m[2]-1, +m[1]);
+    if(!m[3] && d < base) d.setFullYear(y+1);
+    return isNaN(d) ? "" : isoOf(d);
+  }
+  // 12. August 2026
+  m = txt.match(/^(\d{1,2})\.\s?([A-Za-zÄÖÜäöü]+)(?:\s+(\d{4}))?$/);
+  if(m){
+    const mi = MONTHS.findIndex(x => x.toLowerCase() === m[2].toLowerCase());
+    if(mi >= 0){
+      let y = m[3] ? +m[3] : base.getFullYear();
+      const d = new Date(y, mi, +m[1]);
+      if(!m[3] && d < base) d.setFullYear(y+1);
+      return isoOf(d);
+    }
+  }
+  // Wochentag -> der nächste nach dem Sitzungstag
+  const wi = DAYS.findIndex(x => x.toLowerCase() === txt.toLowerCase());
+  if(wi >= 0){
+    const d = new Date(base);
+    d.setDate(d.getDate() + (((wi - d.getDay()) + 7) % 7 || 7));
+    return isoOf(d);
+  }
+  if(/monatsende/i.test(txt)) return isoOf(new Date(base.getFullYear(), base.getMonth()+1, 0));
+  if(/wochenende/i.test(txt)){
+    const d = new Date(base);
+    d.setDate(d.getDate() + (((0 - d.getDay()) + 7) % 7 || 7));
+    return isoOf(d);
+  }
+  // "nächste Sitzung" -> Datum aus dem Feld "Nächste Sitzung" ziehen
+  if(/n(ä|ae)chst/i.test(txt)){
+    const nm = String(naechste||"").match(/(\d{1,2})\.\s?(\d{1,2})\.\s?(\d{2,4})?/);
+    if(nm){
+      let y = nm[3] ? (+nm[3] < 100 ? 2000 + +nm[3] : +nm[3]) : base.getFullYear();
+      const d = new Date(y, +nm[2]-1, +nm[1]);
+      if(!nm[3] && d < base) d.setFullYear(y+1);
+      return isoOf(d);
+    }
+  }
+  return "";
+}
+
+/* ---- Nutzlast für den Workflow ---- */
+function buildPayload(){
+  const d = lastDoc.data;
+  const jahr = yearOf(d.datum);
+  const aufgaben = lastDoc.aufgaben.map((a,i) => {
+    const mem = findMember(a.owner);
+    const mail = mem ? mem.mail.trim() : "";
+    const iso  = resolveDueISO(a.due, d.datum, d.naechste);
+    const t = {
+      nr: i+1,
+      titel: a.text.replace(/\.$/,""),
+      verantwortlich: a.owner || "",
+      frist: a.due || "",
+      top: a.top,
+      topNr: a.topNr
+    };
+    // Leere Werte werden weggelassen statt als "" geschickt: Planner lehnt ein leeres
+    // Fälligkeitsdatum bzw. eine leere Benutzerzuweisung ab, ein fehlendes Feld dagegen
+    // ignoriert es einfach. Das Schema im Flow erzwingt keine Pflichtfelder.
+    if(iso)  t.fristISO = iso;
+    if(mail) t.email = mail;
+    return t;
+  });
+  return {
+    typ: "sitzungsprotokoll",
+    version: 1,
+    verein: ORG.name,
+    gremium: d.abteilung,
+    titel: d.titel,
+    datum: d.datum,
+    datumText: formatDate(d.datum),
+    zeit: d.von ? d.von + (d.bis ? "–" + d.bis : "") + " Uhr" : "",
+    ort: d.ort,
+    leitung: d.leitung,
+    protokollfuehrung: d.protokoll,
+    aktenzeichen: lastDoc.aktenzeichen,
+    anwesend: splitNames(d.teilnehmer),
+    entschuldigt: splitNames(d.entschuldigt),
+    naechsteSitzung: d.naechste,
+    beschluesse: lastDoc.beschluesse.map((b,i) => ({
+      nr: (i+1) + "/" + jahr, text: b.text, top: b.top, topNr: b.topNr
+    })),
+    aufgaben: aufgaben,
+    offenePunkte: lastDoc.fragen.map(f => f.text),
+    // fertige Namensliste für die @Erwähnungen in der Kanalnachricht
+    erwaehnen: [...new Set(aufgaben.filter(a => a.email).map(a => a.email))],
+    kurzfassung: toWhatsapp()
+  };
+}
+
+/* ---- Workflow-Adresse je Gremium (SYK, Birims …) ---- */
+function readHooks(){
+  try{
+    const h = JSON.parse(localStorage.getItem(LS.webhooks) || "{}");
+    return h && typeof h === "object" && !Array.isArray(h) ? h : {};
+  }catch(e){ return {}; }
+}
+function writeHooks(h){ localStorage.setItem(LS.webhooks, JSON.stringify(h)); }
+function gremium(){ return $("f-abteilung").value || GREMIUM_DEFAULT; }
+function currentHook(){ return (readHooks()[gremium()] || "").trim(); }
+function showHook(){
+  $("f-webhook").value = currentHook();
+  $("webhook-for").textContent = gremium();
+}
+
+/* ---- Statuszeile: was fehlt noch? ---- */
+function updateTeamsStatus(){
+  const box = $("teams-status");
+  if(!box || !lastDoc) return;
+  const url = currentHook();
+  const ohneMail = [...new Set(lastDoc.aufgaben.map(a => a.owner).filter(o => o && !findMember(o)))];
+  const parts = [];
+
+  if(!url){
+    const eingerichtet = Object.keys(readHooks()).length > 0;
+    parts.push('<div class="note info">Für <b>' + esc(gremium()) + '</b> ist noch kein Teams-Workflow eingerichtet. ' +
+               'Das Protokoll lässt sich trotzdem drucken, als PDF speichern oder per WhatsApp teilen.' +
+               (eingerichtet ? '' : '<br>Tipp: Den <b>Einrichtungslink</b> vom SYK öffnen, dann ist alles fertig eingerichtet.') +
+               '</div>');
+  } else if(!/^https:\/\//i.test(url)){
+    parts.push('<div class="note warn">Die Adresse sollte mit <b>https://</b> beginnen.</div>');
+  }
+  if(url && ohneMail.length){
+    parts.push('<div class="note warn" style="margin-top:8px">Ohne E-Mail-Adresse, deshalb keine Zuweisung: <b>' +
+               esc(ohneMail.join(", ")) + '</b>. Die Aufgabe wird trotzdem angelegt – nur ohne Person.</div>');
+  }
+  if(url && !ohneMail.length && lastDoc.aufgaben.length){
+    parts.push('<div class="note ok">Bereit für <b>' + esc(gremium()) + '</b>: ' + lastDoc.aufgaben.length + ' Aufgabe(n), ' +
+               lastDoc.beschluesse.length + ' Beschluss/Beschlüsse werden übertragen.</div>');
+  }
+  box.innerHTML = parts.join("");
+}
+
+/* ---- Versand ---- */
+function sendToTeams(){
+  render();
+  const url = currentHook();
+  if(!url){
+    toast("Für " + gremium() + " ist kein Teams-Workflow eingerichtet");
+    $("settings").open = true; $("f-webhook").focus(); return;
+  }
+  if(!lastDoc.aufgaben.length && !lastDoc.beschluesse.length){
+    if(!confirm("Es gibt weder Aufgaben noch Beschlüsse. Trotzdem senden?")) return;
+  }
+  const body = JSON.stringify(buildPayload());
+  const btn = $("btn-teams");
+  btn.disabled = true; btn.textContent = "Sende …";
+
+  // Der Workflow-Auslöser nimmt ausschließlich application/json an (text/plain quittiert er
+  // mit HTTP 400). Power Automate beantwortet die CORS-Vorabprüfung des Browsers korrekt,
+  // deshalb ist ein normaler Aufruf möglich – inklusive lesbarer Antwort.
+  fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body: body })
+    .then(res => {
+      if(res.ok || res.status === 202){
+        toast("An Teams gesendet");
+        $("teams-status").innerHTML =
+          '<div class="note ok">Erfolgreich übergeben um ' + new Date().toLocaleTimeString("de-DE") +
+          ' (HTTP ' + res.status + '). Der Workflow legt jetzt die Aufgaben in Planner an ' +
+          'und schreibt in den Kanal.</div>';
+      } else {
+        toast("Workflow hat abgelehnt (HTTP " + res.status + ")");
+        $("teams-status").innerHTML =
+          '<div class="note warn">Der Workflow hat die Daten mit <b>HTTP ' + res.status +
+          '</b> abgelehnt. Bei 400 stimmt das Format nicht, bei 401/403 die Berechtigung, ' +
+          'bei 404 die Adresse.</div>';
+      }
+    })
+    .catch(()=>{
+      toast("Versand fehlgeschlagen");
+      $("teams-status").innerHTML =
+        '<div class="note warn">Keine Verbindung zum Workflow. Adresse prüfen, Internetverbindung ' +
+        'prüfen, und ob der Flow in Power Automate eingeschaltet ist.</div>';
+    })
+    .then(()=>{ btn.disabled = false; btn.textContent = "An Teams senden"; });
+}
+
+$("btn-teams").addEventListener("click", sendToTeams);
+$("btn-json").addEventListener("click", ()=>{
+  render();
+  copy(JSON.stringify(buildPayload(), null, 2), "JSON kopiert – zum Testen im Flow einfügen");
+});
+$("f-webhook").addEventListener("input", ()=>{
+  const h = readHooks(), v = $("f-webhook").value.trim();
+  if(v) h[gremium()] = v; else delete h[gremium()];
+  writeHooks(h);
+  updateTeamsStatus();
+});
+
+/* ============================================================
+   Einrichtungslink: …/#setup=<base64url(JSON)>
+   Trägt Workflow-Adressen und Mitgliederliste auf ein neues Gerät.
+   Der Teil nach # wird vom Browser nie an den Server geschickt.
+   ============================================================ */
+function b64urlEncode(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function b64urlDecode(str){
+  const bin = atob(str.replace(/-/g,"+").replace(/_/g,"/"));
+  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
+}
+function setupLink(){
+  const data = {
+    v: 1,
+    w: readHooks(),
+    m: activeMembers().map(m => [m.name.trim(), m.mail.trim()])
+  };
+  return location.origin + location.pathname + "#setup=" + b64urlEncode(JSON.stringify(data));
+}
+function importSetup(){
+  const m = location.hash.match(/^#setup=([A-Za-z0-9_-]+)$/);
+  if(!m) return;
+  history.replaceState(null, "", location.pathname + location.search);  // Link nicht in der Adresszeile stehen lassen
+  let data;
+  try{ data = JSON.parse(b64urlDecode(m[1])); }catch(e){ toast("Einrichtungslink ist beschädigt"); return; }
+  const hooks = readHooks();
+  Object.entries(data.w || {}).forEach(([g,u]) => { if(/^https:\/\//i.test(u)) hooks[g] = u; });
+  writeHooks(hooks);
+  const members = (data.m || []).filter(x => Array.isArray(x) && x[0]).map(x => ({ name:String(x[0]), mail:String(x[1] || "") }));
+  if(members.length){
+    localStorage.setItem(LS.stdMembers, JSON.stringify(members));
+    writeMembers(members.map(x => ({ ...x })));
+  }
+  toast("Eingerichtet: " + Object.keys(data.w || {}).length + " Workflow(s), " + members.length + " Mitglieder");
+}
+$("btn-setup-link").addEventListener("click", ()=>{
+  if(!Object.keys(readHooks()).length && !activeMembers().length){
+    toast("Erst Workflow-Adresse oder Mitglieder eintragen"); return;
+  }
+  copy(setupLink(), "Einrichtungslink kopiert – nur intern teilen");
+});
+
+/* Titel folgt dem Gremium, solange er nicht von Hand geändert wurde */
+function autoTitle(g){ return g === "Sonstiges Gremium" ? "Sitzung" : (g === "SYK" ? "Sitzung SYK" : "Sitzung Birim " + g); }
+let lastGremium = null;
+$("f-abteilung").addEventListener("change", ()=>{
+  const t = $("f-titel").value.trim();
+  if(!t || (lastGremium && t === autoTitle(lastGremium))) $("f-titel").value = autoTitle(gremium());
+  lastGremium = gremium();
+  showHook();
+  render(); persist();
+});
+
+/* ============================================================
+   Archiv
+   ============================================================ */
+function readArchive(){
+  try{ return JSON.parse(localStorage.getItem(LS.archive) || "[]"); }
+  catch(e){ return []; }
+}
+function writeArchive(a){ localStorage.setItem(LS.archive, JSON.stringify(a)); }
+function archiveCount(){ return readArchive().length; }
+
+function renderArchive(){
+  const box = $("archive");
+  const items = readArchive();
+  if(!items.length){ box.innerHTML = '<div class="empty">Noch nichts abgelegt.</div>'; return; }
+  box.innerHTML = items.map((it, i) =>
+    '<div class="archive-item">' +
+      '<div class="t"><strong>' + esc(it.titel || "Ohne Titel") + '</strong>' +
+      '<span>' + esc(formatDate(it.datum) || "kein Datum") + ' · ' + esc(it.abteilung || "") + '</span></div>' +
+      '<button class="btn mini" data-load="' + i + '">Laden</button>' +
+      '<button class="btn mini" data-del="' + i + '">×</button>' +
+    '</div>').join("");
+}
+
+$("archive").addEventListener("click", e => {
+  const l = e.target.getAttribute("data-load");
+  const dl = e.target.getAttribute("data-del");
+  const items = readArchive();
+  if(l !== null && l !== undefined){
+    apply(items[+l]); render(); persist();
+    toast("Protokoll geladen");
+  }
+  if(dl !== null && dl !== undefined){
+    items.splice(+dl,1); writeArchive(items); renderArchive();
+    toast("Eintrag gelöscht");
+  }
+});
+
+/* ============================================================
+   Persistenz & Events
+   ============================================================ */
+function persist(){
+  const d = collect();
+  localStorage.setItem(LS.form, JSON.stringify(d));
+  localStorage.setItem(LS.notes, d.notes);
+}
+
+const inputs = ["f-titel","f-datum","f-von","f-bis","f-ort","f-leitung","f-protokoll",
+                "f-teilnehmer","f-entschuldigt","f-naechste","f-abteilung",
+                "c-dua","c-sig","c-teilnehmerliste","notes"];
+let debounce = null;
+inputs.forEach(id=>{
+  const el = $(id);
+  if(!el) return;
+  const ev = (el.type === "checkbox" || el.tagName === "SELECT" || el.type === "date" || el.type === "time") ? "change" : "input";
+  el.addEventListener(ev, ()=>{
+    clearTimeout(debounce);
+    debounce = setTimeout(()=>{ render(); persist(); }, 180);
+  });
+});
+
+$("btn-generate").addEventListener("click", ()=>{ render(); persist(); toast("Bericht aktualisiert"); });
+$("btn-print").addEventListener("click", ()=>{ render(); window.print(); });
+$("btn-md").addEventListener("click", ()=>{ render(); copy(toMarkdown(), "Markdown in der Zwischenablage"); });
+$("btn-wa").addEventListener("click", ()=>{ render(); copy(toWhatsapp(), "Kurzfassung kopiert"); });
+$("btn-html").addEventListener("click", ()=>{ render(); saveHtmlFile(); });
+$("btn-clear").addEventListener("click", ()=>{
+  if($("notes").value.trim() && !confirm("Notizen wirklich leeren?")) return;
+  $("notes").value = ""; render(); persist();
+});
+$("btn-save").addEventListener("click", ()=>{
+  const d = collect();
+  const items = readArchive();
+  items.unshift(d);
+  writeArchive(items.slice(0,40));
+  renderArchive();
+  toast("Im Archiv abgelegt");
+});
+
+const EXAMPLE =
+`# Rückblick und Anwesenheit
+Sohbet am Samstag hatte 24 Teilnehmer, drei neue Geschwister waren dabei
+Die Anwesenheitsliste wird ab sofort digital geführt
+! Der Samstags-Sohbet beginnt ab August einheitlich um 19:00 Uhr
+@Yusuf: Aushang im Foyer und Story auf Instagram bis 12.08.2026
+
+# Jugendraum auf dem Moscheegelände
+i Der Innenausbau ist zu etwa 70 Prozent fertig
+Die Möbel wurden bestellt, Lieferung Ende September
+? Wer koordiniert den Aufbau am Wochenende der Lieferung
+@Ahmet: Angebot für Regale und Sitzbänke einholen bis nächste Sitzung
+
+# Ev-Sohbet freitags
+Die Gruppe der 12- bis 17-Jährigen ist auf 18 Personen gewachsen
+! Ab September wird die Gruppe in zwei Altersstufen geteilt
+@Ömer: Neue Gruppeneinteilung erstellen und im WhatsApp-Kanal teilen bis 20.08.2026
+
+# Sport und Freizeit
+Das Fußballturnier im Juli lief ohne Zwischenfälle
+! Im Herbst wird ein Schwimmtag für die Jugend organisiert
+@Bilal: Hallenzeiten beim Sportamt anfragen bis Monatsende
+
+# Finanzen und Organisation
+i Die Spendenbox der letzten vier Wochen ergab 340 Euro
+? Brauchen wir ein eigenes Budget für die Medienarbeit
+@Kasse: Übersicht der Ausgaben zur nächsten Sitzung vorbereiten`;
+
+$("btn-example").addEventListener("click", ()=>{
+  if($("notes").value.trim() && !confirm("Vorhandene Notizen ersetzen?")) return;
+  $("notes").value = EXAMPLE;
+  if(!$("f-titel").value) $("f-titel").value = autoTitle(gremium());
+  if(!$("f-leitung").value) $("f-leitung").value = "Ömer";
+  if(!$("f-teilnehmer").value) $("f-teilnehmer").value = "Ömer, Yusuf, Ahmet, Bilal, Muhammed, Enes";
+  if(!$("f-von").value){ $("f-von").value = "18:00"; $("f-bis").value = "19:30"; }
+  render(); persist();
+  toast("Beispiel geladen");
+});
+
+/* ============================================================
+   Start
+   ============================================================ */
+(function init(){
+  importSetup();
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(LS.form) || "null"); }catch(e){}
+  if(saved) apply(saved);
+
+  if(!$("f-datum").value){
+    const t = new Date();
+    $("f-datum").value = t.getFullYear() + "-" + String(t.getMonth()+1).padStart(2,"0") + "-" + String(t.getDate()).padStart(2,"0");
+  }
+  if(!$("f-ort").value)  $("f-ort").value = "IGMG Ortsverein Hannover, Weidendamm 9, 30167 Hannover";
+  if(!$("f-abteilung").value) $("f-abteilung").value = GREMIUM_DEFAULT;
+  if(!$("f-titel").value) $("f-titel").value = autoTitle(gremium());
+  lastGremium = gremium();
+
+  $("topMark").innerHTML = logoImg();
+  attachLogoFallback($("topMark"));
+  showHook();
+  renderMembers();
+  renderQuickNames();
+  renderArchive();
+  render();
+})();
+
+})();
+</script>
+</body>
+</html>
