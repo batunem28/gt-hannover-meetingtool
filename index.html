@@ -305,6 +305,13 @@
   details.settings > summary::before{content:"▸";transition:transform .15s}
   details.settings[open] > summary::before{transform:rotate(90deg)}
   details.settings .inner{padding-top:12px}
+  .m365-login{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .m365-who{font-size:13px;color:var(--ink-soft)}
+  .m365-who b{color:var(--ink)}
+  .m365-who button{background:none;border:none;padding:0;color:var(--ink-soft);text-decoration:underline;cursor:pointer;font-size:13px}
+  .m365-ziel{margin-top:12px}
+  .m365-ziel select{font-size:13.5px}
+  .note a{color:inherit;font-weight:700}
   .gremium-pill{
     display:inline-block;background:var(--green-soft);border:1px solid #cfe3d4;border-radius:20px;
     padding:1px 10px;font-size:12.5px;font-weight:600;color:var(--green-dark);
@@ -433,31 +440,17 @@ i Der neue Jugendraum ist Ende September fertig"></textarea>
     <div class="card">
       <h2><span class="num">3</span> Microsoft Teams</h2>
       <div class="body">
-        <div id="teams-status"></div>
+        <div id="m365-box"></div>
+        <div id="teams-status" style="margin-top:12px"></div>
 
         <details class="settings" id="settings">
-          <summary>Einstellungen (Workflow &amp; Mitglieder)</summary>
+          <summary>Mitglieder für @-Namen</summary>
           <div class="inner">
-            <div class="field">
-              <label for="f-webhook">Workflow-Adresse für <span class="gremium-pill" id="webhook-for">SYK</span></label>
-              <input type="text" id="f-webhook" placeholder="https://default….environment.api.powerplatform.com/… (aus dem Auslöser kopieren)">
-            </div>
-
-            <label style="margin-top:4px">Mitglieder (Name wie in den Notizen + E-Mail für die Planner-Zuweisung)</label>
+            <p class="pk-hint" style="margin:0 0 10px">Nach der Anmeldung kommen alle Mitglieder des gewählten Teams automatisch.
+              Hier nur Personen ergänzen, die nicht im Team sind (Name wie in den Notizen, E-Mail optional).</p>
             <div id="members"></div>
             <div class="btnrow" style="margin-top:9px">
               <button class="btn mini" id="btn-member-add">Person hinzufügen</button>
-              <button class="btn mini" id="btn-member-reset">Standardliste</button>
-              <button class="btn mini" id="btn-json">JSON kopieren</button>
-            </div>
-
-            <div class="note info" style="margin-top:14px">
-              <b>Für Admins:</b> Der Einrichtungslink enthält alle Workflow-Adressen und die Mitgliederliste
-              dieses Geräts. Wer ihn öffnet, hat alles fertig eingerichtet. Nur intern weitergeben
-              (WhatsApp-Gruppe / Teams), nicht öffentlich posten.
-              <div class="btnrow" style="margin-top:9px">
-                <button class="btn mini" id="btn-setup-link">Einrichtungslink kopieren</button>
-              </div>
             </div>
           </div>
         </details>
@@ -505,9 +498,9 @@ const LS = {
   form:    "igmg_meeting_form_v1",
   notes:   "igmg_meeting_notes_v1",
   archive: "igmg_meeting_archive_v1",
-  webhooks:"igmg_meeting_webhooks_v2",       // { "SYK": "https://…", "Tanıtma": "https://…" }
-  members: "igmg_meeting_members_v1",
-  stdMembers: "igmg_meeting_std_members_v1"  // Mitgliederliste aus dem Einrichtungslink
+  members: "igmg_meeting_members_v1",       // von Hand ergänzte Personen
+  teamMembers: "igmg_meeting_team_members_v1", // automatisch aus Teams geladen
+  ziele:   "igmg_meeting_ziele_v1"           // { "SYK": {teamId, channelId, planId, …}, "Tanıtma": {…} }
 };
 
 /* ------------------------------------------------------------
@@ -544,8 +537,7 @@ const ORG = {
 };
 
 /* Die Mitgliederliste steht absichtlich NICHT im Code: Die Seite ist öffentlich erreichbar.
-   Namen, E-Mail-Adressen und Workflow-Adressen kommen über den Einrichtungslink
-   (…/#setup=…) und bleiben danach im Browser des jeweiligen Geräts. */
+   Nach der Microsoft-Anmeldung lädt das Tool die Mitglieder des gewählten Teams selbst. */
 const DEFAULT_MEMBERS = [];
 
 const GREMIUM_DEFAULT = "SYK";
@@ -1049,20 +1041,28 @@ function saveHtmlFile(){
    ============================================================ */
 
 /* ---- Mitgliederliste (Name -> E-Mail) ---- */
-function stdMembers(){
-  try{
-    const m = JSON.parse(localStorage.getItem(LS.stdMembers) || "null");
-    if(Array.isArray(m)) return m.map(x => ({ ...x }));
-  }catch(e){}
-  return DEFAULT_MEMBERS.map(m => ({ ...m }));
-}
 function readMembers(){
   try{
-    const raw = localStorage.getItem(LS.members);
-    if(raw === null) return stdMembers();  // erster Start
-    const m = JSON.parse(raw);
+    const m = JSON.parse(localStorage.getItem(LS.members) || "null");
+    return Array.isArray(m) ? m : DEFAULT_MEMBERS.map(x => ({ ...x }));
+  }catch(e){ return DEFAULT_MEMBERS.map(x => ({ ...x })); }
+}
+function readTeamMembers(){
+  try{
+    const m = JSON.parse(localStorage.getItem(LS.teamMembers) || "[]");
     return Array.isArray(m) ? m : [];
-  }catch(e){ return stdMembers(); }
+  }catch(e){ return []; }
+}
+// von Hand ergänzte Personen + Teammitglieder, doppelte E-Mails nur einmal
+function allMembers(){
+  const seen = new Set(), out = [];
+  readMembers().concat(readTeamMembers()).forEach(m => {
+    if(!m || !m.name || !m.name.trim()) return;
+    const key = (m.mail || m.name).trim().toLowerCase();
+    if(seen.has(key)) return;
+    seen.add(key); out.push(m);
+  });
+  return out;
 }
 function writeMembers(m){ localStorage.setItem(LS.members, JSON.stringify(m)); }
 
@@ -1097,18 +1097,11 @@ $("members").addEventListener("click", e => {
 $("btn-member-add").addEventListener("click", ()=>{
   const list = readMembers(); list.push({ name:"", mail:"" }); writeMembers(list); renderMembers();
 });
-$("btn-member-reset").addEventListener("click", ()=>{
-  if(!confirm("Mitgliederliste auf den Stand aus dem Einrichtungslink zurücksetzen?")) return;
-  writeMembers(stdMembers());
-  renderMembers(); renderQuickNames(); updateTeamsStatus();
-  toast("Standardliste wiederhergestellt");
-});
-
 /* ============================================================
    Personenauswahl: Dropdown + @-Vorschläge im Notizfeld
    ============================================================ */
 function activeMembers(){
-  return readMembers().filter(m => m.name && m.name.trim() && m.mail && m.mail.trim());
+  return allMembers().filter(m => m.name && m.name.trim());
 }
 function firstNameOf(m){ return m.name.trim().split(/\s+/)[0]; }
 
@@ -1266,7 +1259,7 @@ function normName(s){
 function findMember(name){
   const n = normName(name);
   if(!n) return null;
-  const list = readMembers().filter(m => m.name && m.mail);
+  const list = allMembers();
   let hit = list.find(m => normName(m.name) === n);
   if(hit) return hit;
   // Vorname genügt
@@ -1378,148 +1371,345 @@ function buildPayload(){
   };
 }
 
-/* ---- Workflow-Adresse je Gremium (SYK, Birims …) ---- */
-function readHooks(){
-  try{
-    const h = JSON.parse(localStorage.getItem(LS.webhooks) || "{}");
-    return h && typeof h === "object" && !Array.isArray(h) ? h : {};
-  }catch(e){ return {}; }
-}
-function writeHooks(h){ localStorage.setItem(LS.webhooks, JSON.stringify(h)); }
 function gremium(){ return $("f-abteilung").value || GREMIUM_DEFAULT; }
-function currentHook(){ return (readHooks()[gremium()] || "").trim(); }
-function showHook(){
-  $("f-webhook").value = currentHook();
-  $("webhook-for").textContent = gremium();
+
+/* ============================================================
+   Microsoft 365: Anmeldung, Aufgaben in Planner, Nachricht im Kanal
+   Die IDs sind öffentlich und kein Geheimnis. Jede Person meldet sich mit ihrem
+   GT-Konto an und kann nur dort schreiben, wo sie selbst Mitglied ist.
+   ============================================================ */
+const M365 = {
+  clientId: "b7c3c3d3-7d8d-49fc-a7db-aff784de2079",   // Entra-App „Harcamaplan GT Hannover“, auch fürs Meetingtool
+  tenantId: "3d0e3eed-8a5a-421c-8d7f-20a653e2a93d",   // Bildungs- und Interkulturelles Zentrum e.V.
+  teamStandard: "GT Hannover",
+  bucket: "Aus Sitzungen"
+};
+const SCOPES = ["User.Read", "User.ReadBasic.All", "Team.ReadBasic.All", "Channel.ReadBasic.All",
+                "ChannelMessage.Send", "Tasks.ReadWrite", "GroupMember.Read.All"];
+const MSAL_URL = "https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.30.0/lib/msal-browser.min.js";
+
+let msalApp = null, konto = null;
+let teamsListe = null;                 // [{id, displayName}]
+const kanalCache = {}, planCache = {}; // je Team-ID
+let lastSent = "";
+
+function ladeSkript(src){
+  return new Promise((ok, nein) => {
+    const sc = document.createElement("script"); sc.src = src; sc.onload = ok; sc.onerror = () => nein(new Error("lib"));
+    document.head.appendChild(sc);
+  });
+}
+async function msalHolen(){
+  if(msalApp) return msalApp;
+  if(!window.msal) await ladeSkript(MSAL_URL);
+  msalApp = new window.msal.PublicClientApplication({
+    auth: { clientId: M365.clientId, authority: "https://login.microsoftonline.com/" + M365.tenantId,
+            redirectUri: location.origin + location.pathname },
+    cache: { cacheLocation: "localStorage" }
+  });
+  await msalApp.initialize();
+  return msalApp;
+}
+async function tokenHolen(){
+  const app = await msalHolen();
+  const k = app.getActiveAccount() || app.getAllAccounts()[0];
+  if(!k) return null;
+  try{ return (await app.acquireTokenSilent({ scopes: SCOPES, account: k })).accessToken; }
+  catch(e){ return null; }
+}
+async function graph(pfad, opts = {}){
+  const token = await tokenHolen();
+  if(!token){ const e = new Error("login"); throw e; }
+  const r = await fetch("https://graph.microsoft.com/v1.0" + pfad, {
+    ...opts, headers: { Authorization: "Bearer " + token, ...(opts.body ? { "Content-Type": "application/json" } : {}), ...(opts.headers || {}) }
+  });
+  if(!r.ok){
+    const e = new Error("graph"); e.status = r.status;
+    try{ e.detail = (await r.json()).error.message; }catch(x){}
+    throw e;
+  }
+  return r.status === 204 ? null : r.json();
+}
+async function alleSeiten(pfad){
+  let out = [], url = pfad;
+  while(url){
+    const res = await graph(url);
+    out = out.concat(res.value || []);
+    url = res["@odata.nextLink"] ? res["@odata.nextLink"].replace("https://graph.microsoft.com/v1.0", "") : null;
+  }
+  return out;
+}
+
+async function anmelden(){
+  persist();
+  try{
+    const app = await msalHolen();
+    await app.loginRedirect({ scopes: SCOPES, prompt: "select_account" });
+  }catch(e){ teamsFehler(e); }
+}
+async function abmelden(){
+  const app = await msalHolen();
+  const k = konto;
+  konto = null; teamsListe = null;
+  localStorage.removeItem(LS.teamMembers);
+  renderM365(); renderQuickNames(); updateTeamsStatus();
+  // nur dieses Gerät abmelden, nicht bei Microsoft insgesamt
+  try{ await app.logoutRedirect({ account: k, onRedirectNavigate: () => false }); }catch(e){}
+}
+
+/* ---- Ziel je Gremium: Team, Kanal, Planner-Plan ---- */
+function readZiele(){
+  try{ const z = JSON.parse(localStorage.getItem(LS.ziele) || "{}"); return z && typeof z === "object" ? z : {}; }
+  catch(e){ return {}; }
+}
+function zielVon(g){ return readZiele()[g || gremium()] || {}; }
+function zielSetzen(teil){
+  const z = readZiele(); z[gremium()] = { ...(z[gremium()] || {}), ...teil };
+  localStorage.setItem(LS.ziele, JSON.stringify(z));
+}
+const kompakt = s => normName(s).replace(/ /g, "");
+function passtZu(name, g){
+  const a = kompakt(name), b = kompakt(g);
+  return !!a && !!b && (a === b || a.includes(b) || (a.length >= 4 && b.includes(a)));
+}
+const neuerPlanTitel = () => "Sitzungen " + gremium();
+
+async function kanaeleVon(teamId){
+  if(!kanalCache[teamId]) kanalCache[teamId] = await alleSeiten("/teams/" + teamId + "/channels?$select=id,displayName,membershipType");
+  return kanalCache[teamId];
+}
+async function plaeneVon(teamId){
+  if(!planCache[teamId]){
+    try{ planCache[teamId] = await alleSeiten("/groups/" + teamId + "/planner/plans?$select=id,title"); }
+    catch(e){ planCache[teamId] = []; }
+  }
+  return planCache[teamId];
+}
+async function mitgliederLaden(teamId){
+  try{
+    const m = await alleSeiten("/groups/" + teamId + "/members?$select=id,displayName,mail,userPrincipalName&$top=999");
+    const list = m.filter(x => x.displayName && (x.mail || x.userPrincipalName))
+      .map(x => ({ name: x.displayName, mail: x.mail || x.userPrincipalName, id: x.id }));
+    localStorage.setItem(LS.teamMembers, JSON.stringify(list));
+    renderQuickNames(); updateTeamsStatus();
+  }catch(e){ /* dann nur die von Hand eingetragenen Personen */ }
+}
+
+// Ziel für das aktuelle Gremium vervollständigen: gespeicherte Wahl, sonst passende Vorschläge
+async function zielVorbereiten(){
+  if(!teamsListe) teamsListe = (await alleSeiten("/me/joinedTeams?$select=id,displayName"))
+    .sort((a,b) => a.displayName.localeCompare(b.displayName, "de"));
+  const z = zielVon();
+  let team = teamsListe.find(t => t.id === z.teamId)
+          || teamsListe.find(t => kompakt(t.displayName) === kompakt(M365.teamStandard))
+          || teamsListe[0];
+  if(!team) return {};
+  const kanaele = await kanaeleVon(team.id);
+  let kanal = kanaele.find(c => c.id === z.channelId)
+           || kanaele.find(c => passtZu(c.displayName, gremium()))
+           || kanaele.find(c => /^(general|allgemein)$/i.test(c.displayName))
+           || kanaele[0];
+  const plaene = await plaeneVon(team.id);
+  let planId = z.planId && (z.planId === "neu" || plaene.some(pl => pl.id === z.planId)) ? z.planId
+             : ((plaene.find(pl => passtZu(pl.title, gremium())) || (kanal && plaene.find(pl => passtZu(pl.title, kanal.displayName))) || {}).id || "neu");
+  zielSetzen({ teamId: team.id, teamName: team.displayName,
+               channelId: kanal ? kanal.id : "", channelName: kanal ? kanal.displayName : "", planId });
+  mitgliederLaden(team.id);
+  return zielVon();
+}
+
+function opt(v, text, sel){ return '<option value="' + esc(v) + '"' + (sel ? " selected" : "") + ">" + esc(text) + "</option>"; }
+async function renderM365(){
+  const box = $("m365-box");
+  if(!konto){
+    box.innerHTML =
+      '<div class="m365-login"><button class="btn primary" id="btn-login">Mit GT-Konto anmelden</button>' +
+      '<span class="m365-who">Dein Konto <b>@igmghannover.de</b>. Danach landen Aufgaben im Planner und das Protokoll im Kanal.</span></div>';
+    $("btn-login").addEventListener("click", anmelden);
+    return;
+  }
+  box.innerHTML = '<div class="m365-who">Angemeldet als <b>' + esc(konto.name || konto.username) + '</b> · ' +
+                  '<button id="btn-logout">abmelden</button></div><div class="m365-ziel"><span class="pk-hint">Teams wird geladen …</span></div>';
+  $("btn-logout").addEventListener("click", abmelden);
+  try{
+    const z = await zielVorbereiten();
+    const kanaele = z.teamId ? await kanaeleVon(z.teamId) : [];
+    const plaene  = z.teamId ? await plaeneVon(z.teamId) : [];
+    box.querySelector(".m365-ziel").innerHTML =
+      '<label>Ziel für <span class="gremium-pill">' + esc(gremium()) + '</span></label>' +
+      '<div class="grid3">' +
+        '<div class="field"><label for="z-team">Team</label><select id="z-team">' +
+          teamsListe.map(t => opt(t.id, t.displayName, t.id === z.teamId)).join("") + '</select></div>' +
+        '<div class="field"><label for="z-kanal">Kanal</label><select id="z-kanal">' +
+          kanaele.map(c => opt(c.id, c.displayName + (c.membershipType === "private" ? " (privat)" : ""), c.id === z.channelId)).join("") + '</select></div>' +
+        '<div class="field"><label for="z-plan">Planner-Plan</label><select id="z-plan">' +
+          plaene.map(pl => opt(pl.id, pl.title, pl.id === z.planId)).join("") +
+          opt("neu", "+ neuer Plan „" + neuerPlanTitel() + "“", z.planId === "neu") + '</select></div>' +
+      '</div>';
+    $("z-team").addEventListener("change", e => {
+      const t = teamsListe.find(x => x.id === e.target.value);
+      zielSetzen({ teamId: t.id, teamName: t.displayName, channelId: "", planId: "" });
+      renderM365();
+    });
+    $("z-kanal").addEventListener("change", e => {
+      zielSetzen({ channelId: e.target.value, channelName: e.target.selectedOptions[0].textContent.replace(/ \(privat\)$/, "") });
+      updateTeamsStatus();
+    });
+    $("z-plan").addEventListener("change", e => { zielSetzen({ planId: e.target.value }); updateTeamsStatus(); });
+  }catch(e){
+    box.querySelector(".m365-ziel").innerHTML = '<div class="note warn">' + esc(fehlerText(e)) + '</div>';
+  }
+  updateTeamsStatus();
+}
+
+function fehlerText(e){
+  if(e && e.message === "lib")   return "Die Microsoft-Anmeldung konnte nicht geladen werden. Internetverbindung prüfen.";
+  if(e && e.message === "login") return "Bitte neu anmelden.";
+  if(e && e.errorCode === "user_cancelled") return "Anmeldung abgebrochen.";
+  if(e && (e.status === 401 || e.status === 403))
+    return "Dein Konto darf hier nicht schreiben. Bist du Mitglied in diesem Team bzw. Kanal?" + (e.detail ? " (" + e.detail + ")" : "");
+  if(e && e.status === 404) return "Team, Kanal oder Plan wurde nicht gefunden. Bitte das Ziel neu auswählen.";
+  return "Das hat nicht geklappt" + (e && e.detail ? ": " + e.detail : ". Bitte noch einmal versuchen.");
+}
+function teamsFehler(e){
+  toast("Senden fehlgeschlagen");
+  $("teams-status").innerHTML = '<div class="note warn">' + esc(fehlerText(e)) + '</div>';
 }
 
 /* ---- Statuszeile: was fehlt noch? ---- */
 function updateTeamsStatus(){
   const box = $("teams-status");
   if(!box || !lastDoc) return;
-  const url = currentHook();
-  const ohneMail = [...new Set(lastDoc.aufgaben.map(a => a.owner).filter(o => o && !findMember(o)))];
+  if(!konto){ box.innerHTML = ""; return; }
+  const z = zielVon();
+  const ohneTreffer = [...new Set(lastDoc.aufgaben.map(a => a.owner).filter(o => o && !findMember(o)))];
   const parts = [];
-
-  if(!url){
-    const eingerichtet = Object.keys(readHooks()).length > 0;
-    parts.push('<div class="note info">Für <b>' + esc(gremium()) + '</b> ist noch kein Teams-Workflow eingerichtet. ' +
-               'Das Protokoll lässt sich trotzdem drucken, als PDF speichern oder per WhatsApp teilen.' +
-               (eingerichtet ? '' : '<br>Tipp: Den <b>Einrichtungslink</b> vom SYK öffnen, dann ist alles fertig eingerichtet.') +
-               '</div>');
-  } else if(!/^https:\/\//i.test(url)){
-    parts.push('<div class="note warn">Die Adresse sollte mit <b>https://</b> beginnen.</div>');
+  if(!z.channelId){
+    parts.push('<div class="note info">Bitte oben Team und Kanal wählen.</div>');
   }
-  if(url && ohneMail.length){
-    parts.push('<div class="note warn" style="margin-top:8px">Ohne E-Mail-Adresse, deshalb keine Zuweisung: <b>' +
-               esc(ohneMail.join(", ")) + '</b>. Die Aufgabe wird trotzdem angelegt – nur ohne Person.</div>');
+  if(ohneTreffer.length){
+    parts.push('<div class="note warn" style="margin-top:8px">Nicht im Team gefunden, deshalb ohne Zuweisung: <b>' +
+               esc(ohneTreffer.join(", ")) + '</b>. Die Aufgabe wird trotzdem angelegt.</div>');
   }
-  if(url && !ohneMail.length && lastDoc.aufgaben.length){
-    parts.push('<div class="note ok">Bereit für <b>' + esc(gremium()) + '</b>: ' + lastDoc.aufgaben.length + ' Aufgabe(n), ' +
-               lastDoc.beschluesse.length + ' Beschluss/Beschlüsse werden übertragen.</div>');
+  if(z.channelId && lastDoc.aufgaben.length + lastDoc.beschluesse.length){
+    parts.push('<div class="note ok" style="margin-top:8px">Bereit: ' + lastDoc.aufgaben.length + ' Aufgabe(n) nach Planner' +
+               (z.planId === "neu" ? ' (neuer Plan „' + esc(neuerPlanTitel()) + '“)' : '') +
+               ', Protokoll in den Kanal <b>' + esc(z.channelName || "") + '</b>.</div>');
   }
   box.innerHTML = parts.join("");
 }
 
 /* ---- Versand ---- */
-function sendToTeams(){
-  render();
-  const url = currentHook();
-  if(!url){
-    toast("Für " + gremium() + " ist kein Teams-Workflow eingerichtet");
-    $("settings").open = true; $("f-webhook").focus(); return;
+async function benutzerId(a){
+  const m = findMember(a.verantwortlich);
+  if(m && m.id) return { id: m.id, name: m.name };
+  const mail = (m && m.mail) || a.email;
+  if(!mail) return null;
+  try{
+    const u = await graph("/users/" + encodeURIComponent(mail) + "?$select=id,displayName");
+    return { id: u.id, name: u.displayName };
+  }catch(e){ return null; }
+}
+async function planUndBucket(z){
+  let planId = z.planId, planName = "";
+  if(!planId || planId === "neu"){
+    const plan = await graph("/planner/plans", { method: "POST", body: JSON.stringify({
+      container: { url: "https://graph.microsoft.com/v1.0/groups/" + z.teamId }, title: neuerPlanTitel() }) });
+    planId = plan.id; planName = plan.title;
+    delete planCache[z.teamId];
+    zielSetzen({ planId });
+  } else {
+    planName = ((await plaeneVon(z.teamId)).find(pl => pl.id === planId) || {}).title || "";
   }
+  const buckets = await alleSeiten("/planner/plans/" + planId + "/buckets?$select=id,name");
+  let bucket = buckets.find(b => b.name === M365.bucket);
+  if(!bucket) bucket = await graph("/planner/buckets", { method: "POST", body: JSON.stringify({ name: M365.bucket, planId, orderHint: " !" }) });
+  return { planId, planName, bucketId: bucket.id };
+}
+
+async function sendToTeams(){
+  render();
+  if(!konto){ anmelden(); return; }
+  const z = zielVon();
+  if(!z.teamId || !z.channelId){ toast("Bitte erst Team und Kanal wählen"); return; }
   if(!lastDoc.aufgaben.length && !lastDoc.beschluesse.length){
     if(!confirm("Es gibt weder Aufgaben noch Beschlüsse. Trotzdem senden?")) return;
   }
-  const body = JSON.stringify(buildPayload());
+  const p = buildPayload();
+  const signatur = JSON.stringify([z.channelId, p.titel, p.datum, p.aufgaben.map(a => a.titel)]);
+  if(signatur === lastSent && !confirm("Dieses Protokoll wurde gerade schon gesendet. Noch einmal senden?")) return;
+
   const btn = $("btn-teams");
   btn.disabled = true; btn.textContent = "Sende …";
+  try{
+    const zeilen = [], mentions = [];
+    const erwaehne = (u) => { const i = mentions.length;
+      mentions.push({ id: i, mentionText: u.name, mentioned: { user: { id: u.id, displayName: u.name, userIdentityType: "aadUser" } } });
+      return '<at id="' + i + '">' + esc(u.name) + '</at>'; };
 
-  // Der Workflow-Auslöser nimmt ausschließlich application/json an (text/plain quittiert er
-  // mit HTTP 400). Power Automate beantwortet die CORS-Vorabprüfung des Browsers korrekt,
-  // deshalb ist ein normaler Aufruf möglich – inklusive lesbarer Antwort.
-  fetch(url, { method:"POST", headers:{ "Content-Type":"application/json" }, body: body })
-    .then(res => {
-      if(res.ok || res.status === 202){
-        toast("An Teams gesendet");
-        $("teams-status").innerHTML =
-          '<div class="note ok">Erfolgreich übergeben um ' + new Date().toLocaleTimeString("de-DE") +
-          ' (HTTP ' + res.status + '). Der Workflow legt jetzt die Aufgaben in Planner an ' +
-          'und schreibt in den Kanal.</div>';
-      } else {
-        toast("Workflow hat abgelehnt (HTTP " + res.status + ")");
-        $("teams-status").innerHTML =
-          '<div class="note warn">Der Workflow hat die Daten mit <b>HTTP ' + res.status +
-          '</b> abgelehnt. Bei 400 stimmt das Format nicht, bei 401/403 die Berechtigung, ' +
-          'bei 404 die Adresse.</div>';
+    let ziel = { planName: "" };
+    if(p.aufgaben.length){
+      ziel = await planUndBucket(z);
+      for(const [i, a] of p.aufgaben.entries()){
+        btn.textContent = "Aufgabe " + (i+1) + " von " + p.aufgaben.length + " …";
+        const u = await benutzerId(a);
+        const task = { planId: ziel.planId, bucketId: ziel.bucketId, title: a.titel };
+        if(a.fristISO) task.dueDateTime = a.fristISO + "T12:00:00Z";
+        if(u) task.assignments = { [u.id]: { "@odata.type": "#microsoft.graph.plannerAssignment", orderHint: " !" } };
+        const t = await graph("/planner/tasks", { method: "POST", body: JSON.stringify(task) });
+        try{
+          const det = await graph("/planner/tasks/" + t.id + "/details");
+          await graph("/planner/tasks/" + t.id + "/details", { method: "PATCH", headers: { "If-Match": det["@odata.etag"] },
+            body: JSON.stringify({ previewType: "description",
+              description: p.titel + " vom " + p.datumText + "\nTOP " + a.topNr + ": " + a.top + "\nAktenzeichen " + p.aktenzeichen }) });
+        }catch(e){ /* Beschreibung ist nur ein Zusatz */ }
+        zeilen.push("<li>" + (u ? "<b>" + erwaehne(u) + "</b>" : (a.verantwortlich ? esc(a.verantwortlich) : "noch offen, wer übernimmt")) +
+                    " – " + esc(a.titel) + (a.frist ? " (bis " + esc(a.frist) + ")" : "") + "</li>");
       }
-    })
-    .catch(()=>{
-      toast("Versand fehlgeschlagen");
-      $("teams-status").innerHTML =
-        '<div class="note warn">Keine Verbindung zum Workflow. Adresse prüfen, Internetverbindung ' +
-        'prüfen, und ob der Flow in Power Automate eingeschaltet ist.</div>';
-    })
-    .then(()=>{ btn.disabled = false; btn.textContent = "An Teams senden"; });
-}
+    }
 
+    btn.textContent = "Nachricht in den Kanal …";
+    const li = arr => "<ul>" + arr.map(x => "<li>" + x + "</li>").join("") + "</ul>";
+    let html = "<p><b>" + esc(p.titel) + "</b><br>" + esc(p.datumText) + (p.zeit ? " · " + esc(p.zeit) : "") + " · " + esc(p.gremium) + "<br>" +
+               "Leitung: " + esc(p.leitung || "–") + " · Protokoll: " + esc(p.protokollfuehrung || "–") + " · " + esc(p.aktenzeichen) + "</p>";
+    if(p.beschluesse.length) html += "<p><b>Beschlüsse</b></p>" + li(p.beschluesse.map(b => esc(b.nr) + ": " + esc(b.text)));
+    if(zeilen.length) html += "<p><b>Aufgaben</b>" + (ziel.planName ? " (in Planner: " + esc(ziel.planName) + ")" : "") + "</p><ul>" + zeilen.join("") + "</ul>";
+    if(p.offenePunkte.length) html += "<p><b>Offene Fragen</b></p>" + li(p.offenePunkte.map(esc));
+    if(p.naechsteSitzung) html += "<p><b>Nächste Sitzung:</b> " + esc(p.naechsteSitzung) + "</p>";
+
+    const msg = await graph("/teams/" + z.teamId + "/channels/" + z.channelId + "/messages", { method: "POST",
+      body: JSON.stringify({ subject: p.titel, body: { contentType: "html", content: html }, mentions }) });
+
+    lastSent = signatur;
+    toast("An Teams gesendet");
+    $("teams-status").innerHTML = '<div class="note ok">Gesendet um ' + new Date().toLocaleTimeString("de-DE") + ': ' +
+      p.aufgaben.length + ' Aufgabe(n) in Planner' + (ziel.planName ? ' („' + esc(ziel.planName) + '“)' : '') +
+      ', Protokoll im Kanal <b>' + esc(z.channelName || "") + '</b>.' +
+      (msg && msg.webUrl ? ' <a href="' + esc(msg.webUrl) + '" target="_blank" rel="noopener">In Teams öffnen</a>' : '') + '</div>';
+  }catch(e){
+    if(e && e.message === "login"){ anmelden(); return; }
+    teamsFehler(e);
+  }finally{
+    btn.disabled = false; btn.textContent = "An Teams senden";
+  }
+}
 $("btn-teams").addEventListener("click", sendToTeams);
-$("btn-json").addEventListener("click", ()=>{
-  render();
-  copy(JSON.stringify(buildPayload(), null, 2), "JSON kopiert – zum Testen im Flow einfügen");
-});
-$("f-webhook").addEventListener("input", ()=>{
-  const h = readHooks(), v = $("f-webhook").value.trim();
-  if(v) h[gremium()] = v; else delete h[gremium()];
-  writeHooks(h);
-  updateTeamsStatus();
-});
 
-/* ============================================================
-   Einrichtungslink: …/#setup=<base64url(JSON)>
-   Trägt Workflow-Adressen und Mitgliederliste auf ein neues Gerät.
-   Der Teil nach # wird vom Browser nie an den Server geschickt.
-   ============================================================ */
-function b64urlEncode(str){
-  const bytes = new TextEncoder().encode(str);
-  let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b));
-  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+/* Nach der Rückkehr von der Microsoft-Anmeldung, oder wenn schon jemand angemeldet ist */
+async function m365Start(){
+  const kommtZurueck = /[#&?](code|error)=/.test(location.hash + location.search);
+  let hatKonto = false;
+  try{ hatKonto = !!JSON.parse(localStorage.getItem("msal.account.keys") || "[]").length; }catch(e){}
+  if(!kommtZurueck && !hatKonto){ renderM365(); return; }
+  try{
+    const app = await msalHolen();
+    const res = await app.handleRedirectPromise();
+    if(res && res.account) app.setActiveAccount(res.account);
+    konto = app.getActiveAccount() || app.getAllAccounts()[0] || null;
+    if(konto && !(await tokenHolen())) konto = null;   // abgelaufen oder neue Rechte nötig
+  }catch(e){ konto = null; }
+  renderM365();
 }
-function b64urlDecode(str){
-  const bin = atob(str.replace(/-/g,"+").replace(/_/g,"/"));
-  return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0)));
-}
-function setupLink(){
-  const data = {
-    v: 1,
-    w: readHooks(),
-    m: activeMembers().map(m => [m.name.trim(), m.mail.trim()])
-  };
-  return location.origin + location.pathname + "#setup=" + b64urlEncode(JSON.stringify(data));
-}
-function importSetup(){
-  const m = location.hash.match(/^#setup=([A-Za-z0-9_-]+)$/);
-  if(!m) return;
-  history.replaceState(null, "", location.pathname + location.search);  // Link nicht in der Adresszeile stehen lassen
-  let data;
-  try{ data = JSON.parse(b64urlDecode(m[1])); }catch(e){ toast("Einrichtungslink ist beschädigt"); return; }
-  const hooks = readHooks();
-  Object.entries(data.w || {}).forEach(([g,u]) => { if(/^https:\/\//i.test(u)) hooks[g] = u; });
-  writeHooks(hooks);
-  const members = (data.m || []).filter(x => Array.isArray(x) && x[0]).map(x => ({ name:String(x[0]), mail:String(x[1] || "") }));
-  if(members.length){
-    localStorage.setItem(LS.stdMembers, JSON.stringify(members));
-    writeMembers(members.map(x => ({ ...x })));
-  }
-  toast("Eingerichtet: " + Object.keys(data.w || {}).length + " Workflow(s), " + members.length + " Mitglieder");
-}
-$("btn-setup-link").addEventListener("click", ()=>{
-  if(!Object.keys(readHooks()).length && !activeMembers().length){
-    toast("Erst Workflow-Adresse oder Mitglieder eintragen"); return;
-  }
-  copy(setupLink(), "Einrichtungslink kopiert – nur intern teilen");
-});
 
 /* Titel folgt dem Gremium, solange er nicht von Hand geändert wurde */
 function autoTitle(g){ return g === "Sonstiges Gremium" ? "Sitzung" : (g === "SYK" ? "Sitzung SYK" : "Sitzung Birim " + g); }
@@ -1528,8 +1718,8 @@ $("f-abteilung").addEventListener("change", ()=>{
   const t = $("f-titel").value.trim();
   if(!t || (lastGremium && t === autoTitle(lastGremium))) $("f-titel").value = autoTitle(gremium());
   lastGremium = gremium();
-  showHook();
   render(); persist();
+  if(konto) renderM365();
 });
 
 /* ============================================================
@@ -1653,7 +1843,6 @@ $("btn-example").addEventListener("click", ()=>{
    Start
    ============================================================ */
 (function init(){
-  importSetup();
   let saved = null;
   try{ saved = JSON.parse(localStorage.getItem(LS.form) || "null"); }catch(e){}
   if(saved) apply(saved);
@@ -1669,11 +1858,11 @@ $("btn-example").addEventListener("click", ()=>{
 
   $("topMark").innerHTML = logoImg();
   attachLogoFallback($("topMark"));
-  showHook();
   renderMembers();
   renderQuickNames();
   renderArchive();
   render();
+  m365Start();
 })();
 
 })();
